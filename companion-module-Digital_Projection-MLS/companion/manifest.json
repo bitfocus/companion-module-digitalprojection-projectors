@@ -1,0 +1,32 @@
+{
+	"id": "Digital_Projection-MLS",
+	"name": "Digital_Projection-MLS",
+	"shortname": "Digital_Projection-MLS",
+	"description": "Digital_Projection-MLS_controller",
+	"version": "0.0.0",
+	"license": "MIT",
+	"repository": "",
+	"bugs": "",
+	"maintainers": [
+		{
+			"name": "dewiweb",
+			"email": "dewiweb@gmail.com"
+		}
+	],
+	"legacyIds": [],
+	"runtime": {
+		"type": "node18",
+		"api": "nodejs-ipc",
+		"apiVersion": "0.0.0",
+		"entrypoint": "../index.js"
+	},
+	"manufacturer": "Digital_Projection",
+	"products": [
+		"MLS"
+	],
+	"keywords": [
+		"Protocol",
+		"TCP",
+		"Projector"
+	]
+}
