@@ -1,6 +1,6 @@
 module.exports = {
   REQUESTS: [
-    { id: "input", type: "dropdown" },
+    { id: "input", type: "dropdown", initVar: true },
     { id: "resync", type: "function" },
     { id: "test.pattern", type: "dropdown" },
     { id: "auto.source", type: "dropdown" },
@@ -115,7 +115,7 @@ module.exports = {
     { id: "user.target.cx/user.target.cy" },
     { id: "user.target.mx/user.target.my" },
     { id: "user.target.wx/user.target.wy" },
-    { id: "user.target.reset" },
+    { id: "user.target.reset", type: "function" },
     { id: "user2.target.rx/user2.target.ry" },
     { id: "user2.target.gx/user2.target.gy" },
     { id: "user2.target.bx/user2.target.by" },

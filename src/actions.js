@@ -3,6 +3,28 @@ module.exports = {
     let self = this;
     let actions = {};
 
+    //    actions["test"] = {
+    //      name: "test",
+    //      options: [
+    //        {
+    //          type: "checkbox",
+    //          id: "test",
+    //          label: "test",
+    //          default: false,
+    //        },
+    //        {
+    //          type: "checkbox",
+    //          id: "test2",
+    //          label: "test2",
+    //          default: false,
+    //          isVisible: (options) => options.test,
+    //        },
+    //      ],
+    //      callback: async (action) => {
+    //        self.log("debug", "test");
+    //      },
+    //    };
+
     //Create automatically an action if Constant exists as a dropdown list
     for (let i in self) {
       if (i === i.toUpperCase() && i !== "REQUESTS") {
@@ -47,46 +69,121 @@ module.exports = {
     for (let i in self.REQUESTS) {
       //start with range
       if (self.REQUESTS[i].type === "range") {
-        self.log(
-          "debug",
-          "request as range exists : " + self.REQUESTS[i].id.replace(/\./g, " ")
-        );
-        actions[self.REQUESTS[i].id.replace(/\./g, " ")] = {
-          name: self.REQUESTS[i].id.replace(/\./g, " "),
+        let basename = self.REQUESTS[i].id.replace(/\./g, " ");
+        self.log("debug", "request as range exists : " + basename);
+        actions[basename] = {
+          name: basename,
           options: [
             {
+              type: "checkbox",
+              id: basename,
+              label: "checked = send command / unchecked = send value",
+              default: true,
+              useVariables: true,
+            },
+
+            {
+              type: "dropdown",
+              id: basename + " command ",
+              label: basename + " command ",
+              choices: [
+                { id: 0, label: "-- Select Command --" },
+                { id: "+", label: "increment" },
+                { id: "-", label: "decrement" },
+                { id: "#", label: "reset to default" },
+              ],
+              default: 0,
+              useVariables: true,
+              isVisible: () => {
+                options.basename === "true";
+              },
+            },
+            {
               type: "number",
-              id: "id_" + self.REQUESTS[i].id.replace(/\./g, "_"),
-              label: self.REQUESTS[i].id.replace(/\./g, " "),
+              id: basename + " value",
+              label: basename + " value",
               min: self.REQUESTS[i].range[0],
               max: self.REQUESTS[i].range[1],
               step: 1,
               range: true,
               //step: self.REQUESTS[i].step,
-              //default: self.REQUESTS[i].default,
+              default: 0,
               useVariables: true,
+              isVisible: () => {
+                options.basename === "true";
+              },
             },
           ],
           callback: async (action) => {
-            let value = await self.parseVariablesInString(
-              action.options["id_" + self.REQUESTS[i].id.replace(/\./g, "_")]
+            let choice = await self.parseVariablesInString(
+              action.options[basename]
             );
-            if (value != "") {
-              if (self.tcpSocket !== undefined && self.tcpSocket.isConnected) {
-                self.log(
-                  "debug",
-                  "sending to " +
-                    self.config.host +
-                    ": *" +
-                    self.REQUESTS[i].id +
-                    "=" +
-                    value
-                );
-                self.sendCommand(
-                  Buffer.from("*" + self.REQUESTS[i].id + "=" + value)
-                );
-              } else {
-                self.log("debug", "tcpSocket not connected :(");
+            self.log("debug", "choice : " + choice);
+            let value = await self.parseVariablesInString(
+              action.options[basename + " value"]
+            );
+            let command = await self.parseVariablesInString(
+              action.options[basename + " command "]
+            );
+            switch (command) {
+              case "+":
+                command = "+";
+                break;
+              case "-":
+                command = "-";
+                break;
+              case "#":
+                command = "#";
+                break;
+            }
+            if (value != "" && command != "") {
+              if (choice === "false") {
+                if (
+                  self.tcpSocket !== undefined &&
+                  self.tcpSocket.isConnected
+                ) {
+                  self.log(
+                    "debug",
+                    "sending to " +
+                      self.config.host +
+                      ": *" +
+                      self.REQUESTS[i].id +
+                      "=" +
+                      value
+                  );
+                  self.sendCommand(
+                    Buffer.from("*" + self.REQUESTS[i].id + "=" + value)
+                  );
+                } else {
+                  self.log("debug", "tcpSocket not connected :(");
+                }
+              } else if (choice === "true") {
+                if (
+                  self.tcpSocket !== undefined &&
+                  self.tcpSocket.isConnected
+                ) {
+                  self.log(
+                    "debug",
+                    "sending to " +
+                      self.config.host +
+                      ": *" +
+                      self.REQUESTS[i].id +
+                      "=" +
+                      command
+                  );
+                  self.sendCommand(
+                    Buffer.from(
+                      "*" + self.REQUESTS[i].id + " " + command + "\r"
+                    )
+                  );
+                  setTimeout(() => {
+                    self.sendCommand(
+                      Buffer.from("*" + self.REQUESTS[i].id + " = ?\r")
+                    );
+                  }, 1000);
+                } else {
+                  self.log("debug", "tcpSocket not connected :(");
+                }
               }
             }
           },

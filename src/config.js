@@ -41,6 +41,12 @@ module.exports = {
       //        default: 30718,
       //        regex: Regex.PORT,
       //      },
+      //{
+      //  type: "checkbox",
+      //  id: "incremental",
+      //  label: "use increment in place of number",
+      //  default: false,
+      //},
     ];
   },
 };
