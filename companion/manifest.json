@@ -5,7 +5,7 @@
 	"description": "Digital_Projection-MLS_controller",
 	"version": "0.0.0",
 	"license": "MIT",
-	"repository": "",
+	"repository": "https://github.com/dewiweb/companion-module-digitalprojection-mls",
 	"bugs": "",
 	"maintainers": [
 		{

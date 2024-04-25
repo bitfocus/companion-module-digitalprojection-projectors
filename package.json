@@ -9,7 +9,7 @@
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/dewiweb/companion-module-Digital_Projection-MLS.git"
+		"url": "git+https://github.com/dewiweb/companion-module-digitalprojection-mls.git"
 	},
 	"dependencies": {
 		"@companion-module/base": "~1.7.0"
