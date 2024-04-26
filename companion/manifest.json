@@ -1,9 +1,9 @@
 {
-	"id": "Digital_Projection-MLS",
-	"name": "Digital_Projection-MLS",
-	"shortname": "Digital_Projection-MLS",
-	"description": "Digital_Projection-MLS_controller",
-	"version": "0.0.0",
+	"id": "DigitalProjection-MLS",
+	"name": "DigitalProjection-MLS",
+	"shortname": "DP-MLS",
+	"description": "DigitalProjection-MLS-Devices",
+	"version": "0.1.0",
 	"license": "MIT",
 	"repository": "https://github.com/dewiweb/companion-module-digitalprojection-mls",
 	"bugs": "",
@@ -20,7 +20,7 @@
 		"apiVersion": "0.0.0",
 		"entrypoint": "../index.js"
 	},
-	"manufacturer": "Digital_Projection",
+	"manufacturer": "DigitalProjection",
 	"products": [
 		"MLS"
 	],

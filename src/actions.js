@@ -94,9 +94,9 @@ module.exports = {
               ],
               default: 0,
               useVariables: true,
-              isVisible: () => {
-                options.basename === "true";
-              },
+              isVisibleData: { basename: basename },
+              isVisible: (options, isVisibleData) =>
+                options[isVisibleData.basename] === true,
             },
             {
               type: "number",
@@ -109,9 +109,9 @@ module.exports = {
               //step: self.REQUESTS[i].step,
               default: 0,
               useVariables: true,
-              isVisible: () => {
-                options.basename === "true";
-              },
+              isVisibleData: { basename: basename },
+              isVisible: (options, isVisibleData) =>
+                options[isVisibleData.basename] === false,
             },
           ],
           callback: async (action) => {
@@ -125,17 +125,17 @@ module.exports = {
             let command = await self.parseVariablesInString(
               action.options[basename + " command "]
             );
-            switch (command) {
-              case "+":
-                command = "+";
-                break;
-              case "-":
-                command = "-";
-                break;
-              case "#":
-                command = "#";
-                break;
-            }
+            //            switch (command) {
+            //              case "+":
+            //                command = "+";
+            //                break;
+            //              case "-":
+            //                command = "-";
+            //                break;
+            //              case "#":
+            //                command = "#";
+            //                break;
+            //            }
             if (value != "" && command != "") {
               if (choice === "false") {
                 if (
@@ -188,6 +188,7 @@ module.exports = {
             }
           },
         };
+        //actions[basename].options[basename].id = basename;
       } else if (self.REQUESTS[i].type === "function") {
         self.log(
           "debug",

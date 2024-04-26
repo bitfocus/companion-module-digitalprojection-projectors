@@ -54,45 +54,6 @@ module.exports = {
     }
   },
 
-  //  initUdpConnection: function () {
-  //    let self = this;
-  //    let cmd;
-  //
-  //    if (self.udpSocket !== undefined) {
-  //      self.udpSocket.destroy();
-  //      delete self.udpSocket;
-  //    }
-  //
-  //    self.updateStatus(InstanceStatus.Connecting);
-  //
-  //    if (self.config.host && self.config.udpPort) {
-  //      self.udpSocket = new UDPHelper(self.config.host, self.config.udpPort);
-  //
-  //      self.udpSocket.on("connect", () => {
-  //        self.updateStatus(InstanceStatus.Ok);
-  //        cmd = "%0xF6%0x00%0x00%0xF6";
-  //        self.udpSocket.send(cmd);
-  //      });
-  //      self.udpSocket.on("listening", () => {
-  //        self.log("debug", "udp listening");
-  //      });
-  //
-  //      self.udpSocket.on("error", (err) => {
-  //        self.updateStatus(InstanceStatus.ConnectionFailure, err.message);
-  //        self.log("error", "Network error: " + err.message);
-  //      });
-  //      self.udpSocket.on("status_change", (status, message) => {
-  //        self.updateStatus(status, message);
-  //        self.log("debug", "udp status_change: " + message);
-  //      });
-  //      self.udpSocket.on("data", (data) => {
-  //        let indata = data.toString("utf8");
-  //        //self.processFeedback(indata);
-  //        self.log("debug", "udp received data: " + indata);
-  //      });
-  //    }
-  //  },
-
   sendCommand: function (cmd) {
     let self = this;
 
@@ -102,54 +63,6 @@ module.exports = {
       self.log("error", "tcpSocket not connected :(");
     }
   },
-
-  //    let self = this;
-  //
-  //    let newLevel = self.FADER_LEVEL;
-  //
-  //    if (direction === "increase") {
-  //      newLevel++;
-  //    } else {
-  //      newLevel--;
-  //    }
-  //
-  //    if (newLevel > 100 || newLevel < 0) {
-  //      self.Fader_Timer(direction, "stop", null);
-  //    } else {
-  //      let cmd;
-  //
-  //      if (self.config.model === "cp650") {
-  //        cmd = "fader_level=" + newLevel;
-  //      } else {
-  //        let prefix = "";
-  //        if (self.config.model === "cp750") {
-  //          prefix = "cp750.";
-  //        }
-  //        cmd = prefix + "sys.fader " + newLevel;
-  //      }
-  //
-  //      if (cmd) {
-  //        self.sendCommand(cmd);
-  //      }
-  //    }
-  //  },
-
-  //  Fader_Timer: function (direction, mode, rate) {
-  //    let self = this;
-  //
-  //    if (self.TIMER_FADER !== null) {
-  //      clearInterval(self.TIMER_FADER);
-  //      self.TIMER_FADER = null;
-  //    }
-  //
-  //    if (mode === "start") {
-  //      self.TIMER_FADER = setInterval(
-  //        self.Fader_Change.bind(self),
-  //        parseInt(rate),
-  //        direction
-  //      );
-  //    }
-  //  },
 
   processFeedback: function (data) {
     let self = this;

@@ -33,6 +33,20 @@ module.exports = {
         default: 7000,
         regex: Regex.PORT,
       },
+      {
+        type: "dropdown",
+        id: "deviceType",
+        label: "Device Type",
+        choices: [
+          { id: "unknown", label: "unknown" },
+          { id: "scm", label: "SCM" },
+          { id: "sph", label: "SPH" },
+          { id: "mls", label: "MLS" },
+        ],
+        default: "unknown",
+        useVariables: true,
+        isVisible: true,
+      },
       //      {
       //        type: "textinput",
       //        id: "udpPort",
