@@ -1,3 +1,5 @@
-## Digital_Projection-MLS
+## digitalprojection-mls module for MLS system components
 
-Write some help for your users here!
+A companion module to control and monitor MLS system components (Heads, SCM and MLS).
+
+WORK-IN-PROGRESS!
