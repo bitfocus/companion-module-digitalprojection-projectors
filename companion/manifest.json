@@ -1,11 +1,11 @@
 {
 	"id": "DigitalProjection-MLS",
-	"name": "DigitalProjection-MLS",
+	"name": "digitalprojection-mls",
 	"shortname": "DP-MLS",
 	"description": "DigitalProjection-MLS-Devices",
 	"version": "0.1.0",
 	"license": "MIT",
-	"repository": "https://github.com/dewiweb/companion-module-digitalprojection-mls",
+	"repository": "https://github.com/bitfocus/companion-module-digitalprojection-mls",
 	"bugs": "",
 	"maintainers": [
 		{
