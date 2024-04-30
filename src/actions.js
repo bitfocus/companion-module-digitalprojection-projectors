@@ -120,7 +120,7 @@ module.exports = {
                   max: command.max,
                   step: 1,
                   range: true,
-                  default: 0,
+                  default: Math.round((command.min + command.max) / 2),
                   useVariables: true,
                   isVisibleData: { basename: basename },
                   isVisible: (options, isVisibleData) =>

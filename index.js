@@ -19,6 +19,11 @@ const titan330004k = require("./src/models/titan330004k");
 const titan47000wu = require("./src/models/titan47000wu");
 const titan410004k = require("./src/models/titan410004k");
 const mvisionlaser18k = require("./src/models/mvisionlaser18k");
+const mvision27000wu = require("./src/models/mvision27000wu");
+const mvision23000wu = require("./src/models/mvision23000wu");
+const evisionlaser15000wu = require("./src/models/evisionlaser15000wu");
+const evisionlaser110004k = require("./src/models/evisionlaser110004k");
+const evision10000iwu = require("./src/models/evision10000iwu");
 
 class MlsInstance extends InstanceBase {
   constructor(internal) {
@@ -39,6 +44,11 @@ class MlsInstance extends InstanceBase {
       ...titan47000wu,
       ...titan410004k,
       ...mvisionlaser18k,
+      ...mvision27000wu,
+      ...mvision23000wu,
+      ...evisionlaser15000wu,
+      ...evisionlaser110004k,
+      ...evision10000iwu,
       ...utils,
     });
   }
