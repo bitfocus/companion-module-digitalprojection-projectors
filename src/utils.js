@@ -21,19 +21,83 @@ module.exports = {
 
       self.tcpSocket.on("connect", () => {
         self.updateStatus(InstanceStatus.Ok);
-        self.REQUESTS.forEach((request, index) => {
-          if (request.type !== "function") {
-            setTimeout(() => {
-              self.tcpSocket.send("*" + request.id + "=?\r");
-              self.log(
-                "debug",
-                "initial Request sending: *" + request.id + "=?\r"
-              );
-            }, 1100 * (index + 1));
+        //        self.REQUESTS.forEach((request, index) => {
+        //          if (request.type !== "function") {
+        //            setTimeout(() => {
+        //              self.tcpSocket.send("*" + request.id + " ?\r");
+        //              self.log(
+        //                "debug",
+        //                "initial Request sending: *" + request.id + " ?\r"
+        //              );
+        //            }, 1100 * (index + 1));
+        //          }
+        //        });
+        let modelChoice = self.config.model.toUpperCase();
+        //        if (self.config.model === "scm") {
+        //self.log("debug", "self.SCM: " + self.SCM);
+        async function init() {
+          try {
+            let filteredArray = await new Promise((resolve, reject) => {
+              let filteredArray = self[modelChoice].filter((obj) => {
+                if (obj.Name.includes("xxx")) {
+                  return false;
+                }
+                return true; // Keep this object
+              });
+              resolve(filteredArray);
+            });
+            self[modelChoice] = filteredArray;
+            filteredArray.forEach((command, index) => {
+              if (command.Settings.includes("?")) {
+                setTimeout(() => {
+                  self.tcpSocket.send("*" + command.CmdStr + " ?\r");
+                  //                  self.log(
+                  //                    "debug",
+                  //                    "initial Request sending: *" + command.CmdStr + " ?\r"
+                  //                  );
+                }, 1100 * (index + 1));
+              }
+            });
+          } catch (error) {
+            self.log("error", error);
           }
-        });
-        //  cmd = "*status=?\r";
-        //  self.tcpSocket.send(cmd);
+        }
+        init();
+        //        } else if (self.config.model === "highlite") {
+        //          self.HIGHLITE.forEach((command, index) => {
+        //            if (!command.Name.includes("xxx")) {
+        //              self.HIGHLITE.splice(index, 1);
+        //            }
+        //          });
+        //          self.HIGHLITE.forEach((command, index) => {
+        //            if (command.Settings.includes("?")) {
+        //              setTimeout(() => {
+        //                self.tcpSocket.send("*" + command.CmdStr + "\r");
+        //                self.log(
+        //                  "debug",
+        //                  "initial Request sending: *" + command.CmdStr + "\r"
+        //                );
+        //              }, 1100 * (index + 1));
+        //            }
+        //          });
+        //        } else if (self.config.model === "mls") {
+        //          self.MLS.forEach((command, index) => {
+        //            if (!command.Name.includes("xxx")) {
+        //              self.MLS.splice(index, 1);
+        //            }
+        //          });
+        //          self.MLS.forEach((command, index) => {
+        //            if (command.Settings.includes("?")) {
+        //              setTimeout(() => {
+        //                self.tcpSocket.send("*" + command.CmdStr + "\r");
+        //                self.log(
+        //                  "debug",
+        //                  "initial Request sending: *" + command.CmdStr + "\r"
+        //                );
+        //              }, 1100 * (index + 1));
+        //            }
+        //          });
+        //        }
       });
       self.tcpSocket.on("error", (err) => {
         self.updateStatus(InstanceStatus.ConnectionFailure, err.message);
@@ -58,7 +122,7 @@ module.exports = {
     let self = this;
 
     if (self.tcpSocket !== undefined && self.tcpSocket.isConnected) {
-      self.tcpSocket.send(cmd + "\r", "latin1");
+      self.tcpSocket.send("*" + cmd + "\r", "latin1");
     } else {
       self.log("error", "tcpSocket not connected :(");
     }
@@ -97,28 +161,28 @@ module.exports = {
     }
     variableObj[incDataArg] = cmdArray_value;
 
-    inConstants = incDataArg.toUpperCase().replace(/\s/g, "").toString();
-
-    if (self[inConstants]) {
-      self.log(
-        "debug",
-        "received arg:" + cmdArray_value + " in Constants: " + inConstants
-      );
-      //self.log("debug", "Constant data: " + self[inConstants][0]);
-      if (parseInt(cmdArray_value)) {
-        value = self[inConstants].find(
-          ({ id }) => id === parseInt(cmdArray_value)
-        ).label;
-        variableObj[incDataArg] = value;
-      } else {
-        self.log(
-          "debug",
-          "received arg:" + cmdArray_value + " not in Constants: " + inConstants
-        );
-      }
-    } else {
-      self.log("debug", "received arg not in Constants: " + inConstants);
-    }
+    //  inConstants = incDataArg.toUpperCase().replace(/\s/g, "").toString();
+    //
+    //  if (self[inConstants]) {
+    //    self.log(
+    //      "debug",
+    //      "received arg:" + cmdArray_value + " in Constants: " + inConstants
+    //    );
+    //    //self.log("debug", "Constant data: " + self[inConstants][0]);
+    //    if (parseInt(cmdArray_value)) {
+    //      value = self[inConstants].find(
+    //        ({ id }) => id === parseInt(cmdArray_value)
+    //      ).label;
+    //      variableObj[incDataArg] = value;
+    //    } else {
+    //      self.log(
+    //        "debug",
+    //        "received arg:" + cmdArray_value + " not in Constants: " + inConstants
+    //      );
+    //    }
+    //  } else {
+    //    self.log("debug", "received arg not in Constants: " + inConstants);
+    //  }
 
     self.setVariableValues(variableObj);
   },

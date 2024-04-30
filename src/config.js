@@ -35,32 +35,20 @@ module.exports = {
       },
       {
         type: "dropdown",
-        id: "deviceType",
-        label: "Device Type",
+        id: "model",
+        label: "Device model",
         choices: [
           { id: "unknown", label: "unknown" },
           { id: "scm", label: "SCM" },
-          { id: "sph", label: "SPH" },
+          { id: "highlite", label: "HIGHlite Head" },
           { id: "mls", label: "MLS" },
+          { id: "titan37000wu", label: "Titan 37000WU" },
+          { id: "titan330004k", label: "Titan 330004K-UHD" },
         ],
         default: "unknown",
         useVariables: true,
         isVisible: true,
       },
-      //      {
-      //        type: "textinput",
-      //        id: "udpPort",
-      //        label: "UDP Target Port",
-      //        width: 4,
-      //        default: 30718,
-      //        regex: Regex.PORT,
-      //      },
-      //{
-      //  type: "checkbox",
-      //  id: "incremental",
-      //  label: "use increment in place of number",
-      //  default: false,
-      //},
     ];
   },
 };

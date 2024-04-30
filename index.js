@@ -4,10 +4,6 @@ const {
   runEntrypoint,
 } = require("@companion-module/base");
 const UpgradeScripts = require("./src/upgrades");
-
-//const UpdateActions = require("./src/actions");
-//const UpdateFeedbacks = require("./src/feedbacks");
-//const UpdateVariableDefinitions = require("./src/variables");
 const config = require("./src/config");
 const actions = require("./src/actions");
 const feedbacks = require("./src/feedbacks");
@@ -15,6 +11,11 @@ const variables = require("./src/variables");
 const presets = require("./src/presets");
 const constants = require("./src/constants");
 const utils = require("./src/utils");
+const highlite = require("./src/models/highlite");
+const mls = require("./src/models/mls");
+const scm = require("./src/models/scm");
+const titan37000wu = require("./src/models/titan37000wu");
+const titan330004k = require("./src/models/titan330004k");
 
 class MlsInstance extends InstanceBase {
   constructor(internal) {
@@ -27,6 +28,11 @@ class MlsInstance extends InstanceBase {
       ...variables,
       ...presets,
       ...constants,
+      ...highlite,
+      ...mls,
+      ...scm,
+      ...titan37000wu,
+      ...titan330004k,
       ...utils,
     });
   }
@@ -39,28 +45,9 @@ class MlsInstance extends InstanceBase {
 
   async init(config) {
     this.configUpdated(config);
-
-    //    this.updateStatus(InstanceStatus.Ok);
-
-    //    this.updateActions(); // export actions
-    //    this.updateFeedbacks(); // export feedbacks
-    //    this.updateVariableDefinitions(); // export variable definitions
   }
-  // When module gets deleted
-  //  async destroy() {
-  //    this.log("debug", "destroy");
-  //  }
 
   async configUpdated(config) {
-    //    if (this.socket) {
-    //      this.socket.destroy();
-    //      delete this.socket;
-    //    }
-    //    this.config = config;
-    //
-    //    this.init_tcp();
-    //
-    //    this.init_tcp_variables();
     this.config = config;
     this.initActions();
     this.initFeedbacks();
@@ -68,89 +55,7 @@ class MlsInstance extends InstanceBase {
     this.initPresets();
     this.updateStatus(InstanceStatus.Connecting);
     this.initTcpConnection();
-    //  this.initUdpConnection();
   }
-
-  //  // Return config fields for web config
-  //  getConfigFields() {
-  //    return [
-  //      {
-  //        type: "static-text",
-  //        id: "info",
-  //        label: "Information",
-  //        width: 12,
-  //        value: `
-  //				<div class="alert alert-danger">
-  //					<h3>IMPORTANT MESSAGE</h3>
-  //					<div>
-  //					</div>
-  //				</div>
-  //			`,
-  //      },
-  //      {
-  //        type: "textinput",
-  //        id: "host",
-  //        label: "Target IP",
-  //        width: 8,
-  //        regex: Regex.IP,
-  //      },
-  //      {
-  //        type: "textinput",
-  //        id: "port",
-  //        label: "Target Port",
-  //        width: 4,
-  //        default: 7000,
-  //        regex: Regex.PORT,
-  //      },
-  //    ];
-  //  }
-  //
-  //  init_tcp() {
-  //    if (this.socket) {
-  //      this.socket.destroy();
-  //      delete this.socket;
-  //    }
-  //
-  //    this.updateStatus(InstanceStatus.Connecting);
-  //
-  //    if (this.config.host) {
-  //      this.socket = new TCPHelper(this.config.host, this.config.port);
-  //
-  //      this.socket.on("status_change", (status, message) => {
-  //        this.updateStatus(status, message);
-  //      });
-  //
-  //      this.socket.on("error", (err) => {
-  //        this.updateStatus(InstanceStatus.ConnectionFailure, err.message);
-  //        this.log("error", "Network error: " + err.message);
-  //      });
-  //
-  //      this.socket.on("data", (data) => {
-  //        let dataResponse = data.toString();
-  //        this.log(
-  //          "debug",
-  //          "received from " + this.config.host + " = " + dataResponse
-  //        );
-  //        if (dataResponse.includes("test.pattern")) {
-  //          this.setVariableValues({ variable2: dataResponse });
-  //        }
-  //        this.setVariableValues({ tcp_response: dataResponse });
-  //      });
-  //    } else {
-  //      this.updateStatus(InstanceStatus.BadConfig);
-  //    }
-  //  }
-  //
-  //  updateActions() {
-  //    UpdateActions(this);
-  //  }
-  //
-  //  updateFeedbacks() {
-  //    UpdateFeedbacks(this);
-  //  }
-  //
-  //  updateVariableDefinitions() {
-  //    UpdateVariableDefinitions(this);
 }
 
 runEntrypoint(MlsInstance, UpgradeScripts);
