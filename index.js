@@ -11,11 +11,14 @@ const variables = require("./src/variables");
 const presets = require("./src/presets");
 const constants = require("./src/constants");
 const utils = require("./src/utils");
-const highlite = require("./src/models/highlite");
-const mls = require("./src/models/mls");
+const satellitehighlite4k = require("./src/models/satellitehighlite4k");
+const mls10000 = require("./src/models/mls10000");
 const scm = require("./src/models/scm");
 const titan37000wu = require("./src/models/titan37000wu");
 const titan330004k = require("./src/models/titan330004k");
+const titan47000wu = require("./src/models/titan47000wu");
+const titan410004k = require("./src/models/titan410004k");
+const mvisionlaser18k = require("./src/models/mvisionlaser18k");
 
 class MlsInstance extends InstanceBase {
   constructor(internal) {
@@ -28,11 +31,14 @@ class MlsInstance extends InstanceBase {
       ...variables,
       ...presets,
       ...constants,
-      ...highlite,
-      ...mls,
+      ...satellitehighlite4k,
+      ...mls10000,
       ...scm,
       ...titan37000wu,
       ...titan330004k,
+      ...titan47000wu,
+      ...titan410004k,
+      ...mvisionlaser18k,
       ...utils,
     });
   }

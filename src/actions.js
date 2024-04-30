@@ -7,7 +7,11 @@ module.exports = {
     let model = self.config.model.toUpperCase();
     if (self[model] !== undefined) {
       self[model].forEach((command) => {
-        if (command.Settings.includes("?") && !command.Name.includes("xxx")) {
+        self.log("debug", "searching for action: " + command.Name);
+        if (
+          command.Settings.toString().includes("?") &&
+          !command.Name.includes("xxx")
+        ) {
           let dataKeys = [];
           let previousDataValueWasEmpty = true;
           let list = [];

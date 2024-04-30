@@ -160,30 +160,6 @@ module.exports = {
       incDataArg = cmdArray_argument;
     }
     variableObj[incDataArg] = cmdArray_value;
-
-    //  inConstants = incDataArg.toUpperCase().replace(/\s/g, "").toString();
-    //
-    //  if (self[inConstants]) {
-    //    self.log(
-    //      "debug",
-    //      "received arg:" + cmdArray_value + " in Constants: " + inConstants
-    //    );
-    //    //self.log("debug", "Constant data: " + self[inConstants][0]);
-    //    if (parseInt(cmdArray_value)) {
-    //      value = self[inConstants].find(
-    //        ({ id }) => id === parseInt(cmdArray_value)
-    //      ).label;
-    //      variableObj[incDataArg] = value;
-    //    } else {
-    //      self.log(
-    //        "debug",
-    //        "received arg:" + cmdArray_value + " not in Constants: " + inConstants
-    //      );
-    //    }
-    //  } else {
-    //    self.log("debug", "received arg not in Constants: " + inConstants);
-    //  }
-
     self.setVariableValues(variableObj);
   },
 };
