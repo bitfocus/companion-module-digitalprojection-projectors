@@ -1,8 +1,8 @@
 {
-	"id": "DigitalProjection-MLS",
-	"name": "digitalprojection-mls",
-	"shortname": "DP-MLS",
-	"description": "DigitalProjection-MLS-Devices",
+	"id": "DigitalProjection-projectors",
+	"name": "digitalprojection-projectors",
+	"shortname": "DP-projectors",
+	"description": "DigitalProjection-projectors",
 	"version": "0.1.0",
 	"license": "MIT",
 	"repository": "https://github.com/bitfocus/companion-module-digitalprojection-mls",
@@ -13,7 +13,9 @@
 			"email": "dewiweb@gmail.com"
 		}
 	],
-	"legacyIds": [],
+	"legacyIds": [
+		"digitalprojection-mls"
+	],
 	"runtime": {
 		"type": "node18",
 		"api": "nodejs-ipc",
@@ -22,7 +24,92 @@
 	},
 	"manufacturer": "DigitalProjection",
 	"products": [
-		"MLS"
+		{
+			"E-Vision Laser 15000 WU.csv": [
+				"E-Vision Laser 15000 WU",
+				"E-Vision 13000 WU"
+			]
+		},
+		{
+			"M-Vision 23000 WU.csv": [
+				"M-Vision 23000 WU",
+				"M-Vision Laser 21K",
+				"M-Vision 21000 WU"
+			]
+		},
+		{
+			"M-Vision 27000 WU.csv": [
+				"M-Vision 27000 WU",
+				"M-Vision 24000 WU",
+				"M-Vision 21000 WU II"
+			]
+		},
+		{
+			"Titan Laser 37000 WU.csv": [
+				"Titan Laser 37000 WU",
+				"Titan Laser 29000 WU"
+			]
+		},
+		{
+			"Titan Laser 33000 4K-UHD.csv": [
+				"Titan Laser 33000 4K-UHD",
+				"Titan Laser 26000 4K-UHD"
+			]
+		},
+		{
+			"Titan 47000 WU.csv": [
+				"Titan 47000 WU",
+				"Titan 43000 WU",
+				"Titan 42000 WU"
+			]
+		},
+		{
+			"Titan 41000 4K-UHD.csv": [
+				"Titan 41000 4K-UHD",
+				"Titan 37000 4K-UHD"
+			]
+		},
+		{
+			"E-Vision 10000i WU.csv": [
+				"E-Vision 10000i WU",
+				"E-Vision 8000i WU",
+				"E-Vision 10000 WU",
+				"E-Vision 8000 WU"
+			]
+		},
+		{
+			"EV5900_WU.csv": [
+				"EV5900_WU",
+				"EV7010_WU"
+			]
+		},
+		{
+			"EV5100_WU.csv": [
+				"EV5100_WU",
+				"EV6110_WU"
+			]
+		},
+		{
+			"E-Vision Laser 8500.csv": [
+				"E-Vision Laser 8500",
+				"E-Vision Laser 7500"
+			]
+		},
+		{
+			"Satellite HIGHlite Head 4K-UHD.csv": [
+				"Satellite HIGHlite Head 4K-UHD",
+				"Satellite HIGHlite Head WU",
+				"Satellite Titan Head 4K-UHD",
+				"Satellite Titan Head WU"
+			]
+		},
+		{
+			"MLS 10000.csv": [
+				"MLS 10000",
+				"MLS 20000",
+				"MLS 30000"
+			]
+		}
 	],
 	"keywords": [
 		"Protocol",
