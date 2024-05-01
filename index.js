@@ -9,7 +9,6 @@ const actions = require("./src/actions");
 const feedbacks = require("./src/feedbacks");
 const variables = require("./src/variables");
 const presets = require("./src/presets");
-const constants = require("./src/constants");
 const utils = require("./src/utils");
 const satellitehighlite4k = require("./src/models/satellitehighlite4k");
 const mls10000 = require("./src/models/mls10000");
@@ -35,7 +34,6 @@ class MlsInstance extends InstanceBase {
       ...feedbacks,
       ...variables,
       ...presets,
-      ...constants,
       ...satellitehighlite4k,
       ...mls10000,
       ...scm,
@@ -65,9 +63,9 @@ class MlsInstance extends InstanceBase {
 
   async configUpdated(config) {
     this.config = config;
-    this.initActions();
+    await this.initActions();
     this.initFeedbacks();
-    this.initVariables();
+    await this.initVariables();
     this.initPresets();
     this.updateStatus(InstanceStatus.Connecting);
     this.initTcpConnection();

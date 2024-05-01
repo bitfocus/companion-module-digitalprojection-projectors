@@ -7,10 +7,11 @@ module.exports = {
     let model = self.config.model.toUpperCase();
     if (self[model] !== undefined) {
       self[model].forEach((command) => {
-        self.log("debug", "searching for action: " + command.Name);
+        //        self.log("debug", "searching for action: " + command.Name);
         if (
           command.Settings.toString().includes("?") &&
-          !command.Name.includes("xxx")
+          !command.Name.includes("xxx") &&
+          command.Name !== ""
         ) {
           let dataKeys = [];
           let previousDataValueWasEmpty = true;
@@ -63,7 +64,7 @@ module.exports = {
                         "=" +
                         value
                     );
-                    self.sendCommand(Buffer.from(arg + "=" + value));
+                    self.sendCommand(Buffer.from(arg + " = " + value));
                   } else {
                     self.log("debug", "tcpSocket not connected :(");
                   }
@@ -75,10 +76,11 @@ module.exports = {
           else if (
             command.Settings.includes("?=+-") &&
             command.min !== "" &&
-            command.max !== ""
+            command.max !== "" &&
+            command.Name !== ""
           ) {
             let basename = command.Name;
-            self.log("debug", "numerical action creation: " + basename);
+            //            self.log("debug", "numerical action creation: " + basename);
             actions[command.Name] = {
               name: command.Name,
               description:
@@ -98,8 +100,8 @@ module.exports = {
                 },
                 {
                   type: "dropdown",
-                  id: basename + " command ",
-                  label: basename + " command ",
+                  id: basename + " command",
+                  label: basename + " command",
                   choices: [
                     { id: 0, label: "-- Select Command --" },
                     { id: "+", label: "increment" },
@@ -136,7 +138,7 @@ module.exports = {
                   action.options[basename + " value"]
                 );
                 let commandChoice = await self.parseVariablesInString(
-                  action.options[basename + " command "]
+                  action.options[basename + " command"]
                 );
                 if (value != "" && commandChoice != "") {
                   if (choice === "false") {
@@ -154,7 +156,7 @@ module.exports = {
                           value
                       );
                       self.sendCommand(
-                        Buffer.from(command.CmdStr + "=" + value)
+                        Buffer.from(command.CmdStr + " = " + value)
                       );
                     } else {
                       self.log("debug", "tcpSocket not connected :(");
@@ -189,7 +191,11 @@ module.exports = {
           }
         }
         //Search for "execute" commands
-        else if (!command.Name.includes("xxx") && command.Settings === "") {
+        else if (
+          !command.Name.includes("xxx") &&
+          command.Settings === "" &&
+          command.Name !== ""
+        ) {
           actions[command.Name] = {
             name: command.Name,
             description: "Category: " + command.Category + ", Type: Execute",

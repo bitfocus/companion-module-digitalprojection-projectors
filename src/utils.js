@@ -10,11 +10,12 @@ module.exports = {
     let cmd;
 
     if (self.tcpSocket !== undefined) {
-      self.tcpSocket.destroy();
+      self.tcpSocket.destroy(self);
       delete self.tcpSocket;
     }
 
     self.updateStatus(InstanceStatus.Connecting);
+    self.log("debug", "instance is named: " + self.label);
 
     if (self.config.host && self.config.tcpPort) {
       self.tcpSocket = new TCPHelper(self.config.host, self.config.tcpPort);
