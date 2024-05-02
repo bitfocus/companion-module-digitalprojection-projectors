@@ -56,7 +56,7 @@ module.exports = {
                   self.log("debug", "adding dropdown preset: " + command.Name);
                   presets.push({
                     type: "button",
-                    category: command.Category,
+                    category: command.Category + " - ChoiceList",
                     name: command.Name,
                     style: {
                       //text: command.Name,
@@ -94,7 +94,7 @@ module.exports = {
                   self.log("debug", "adding range preset: " + command.Name);
                   presets.push({
                     type: "button",
-                    category: command.Category,
+                    category: command.Category + " - Value",
                     name: command.Name,
                     style: {
                       //text: command.Name,
@@ -130,7 +130,7 @@ module.exports = {
               ) {
                 presets.push({
                   type: "button",
-                  category: command.Category,
+                  category: command.Category + " - Execute",
                   name: command.Name,
                   style: {
                     //text: command.Name,
@@ -168,7 +168,7 @@ module.exports = {
           ) {
             presets.push({
               type: "button",
-              category: command.Category,
+              category: command.Category + " - ?",
               name: command.Name,
               style: {
                 //text: command.Name,
@@ -197,7 +197,7 @@ module.exports = {
             self.log("debug", "adding execute button preset: " + command.Name);
             presets.push({
               type: "button",
-              category: command.Category,
+              category: command.Category + " - Execute",
               name: command.Name,
               style: {
                 //text: command.Name,
