@@ -2,7 +2,7 @@
 
 A companion module to control and monitor Digital Projection projectors.
 
-## Models to be supported
+## Models supported
 
     ["E-Vision Laser 15000 WU", "E-Vision 13000 WU"],
     ["M-Vision 23000 WU", "M-Vision Laser 21K", "M-Vision 21000 WU"],
