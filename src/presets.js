@@ -52,38 +52,81 @@ module.exports = {
                 }
                 //Search for "dropdown" commands
                 if (list.length > 0) {
-                  //Dropdown presets
-                  self.log("debug", "adding dropdown preset: " + command.Name);
-                  presets.push({
-                    type: "button",
-                    category: command.Category + " - ChoiceList",
-                    name: command.Name,
-                    style: {
-                      //text: command.Name,
-                      text:
-                        "concat('" +
-                        command.Name +
-                        "' ,$(" +
-                        instanceId +
-                        ":" +
-                        variableId +
-                        "))",
-                      textExpression: true,
-                      size: "14",
-                      color: "16777215",
-                      bgcolor: combineRgb(0, 0, 0),
-                    },
-                    steps: [
-                      {
-                        down: [
+                  if (list.length !== 2) {
+                    //Dropdown presets
+                    self.log(
+                      "debug",
+                      "adding dropdown preset: " + command.Name
+                    );
+                    presets.push({
+                      type: "button",
+                      category: command.Category + " - ChoiceList",
+                      name: command.Name,
+                      style: {
+                        //text: command.Name,
+                        text:
+                          "concat('" +
+                          command.Name +
+                          "' ,$(" +
+                          instanceId +
+                          ":" +
+                          variableId +
+                          "))",
+                        textExpression: true,
+                        size: "14",
+                        color: "16777215",
+                        bgcolor: combineRgb(0, 0, 0),
+                      },
+                      steps: [
+                        {
+                          down: [
+                            {
+                              actionId: command.Name,
+                            },
+                          ],
+                          up: [],
+                        },
+                      ],
+                    });
+                  } else {
+                    {
+                      //Dropdown presets
+                      self.log(
+                        "debug",
+                        "adding dropdown preset: " + command.Name
+                      );
+                      presets.push({
+                        type: "button",
+                        category: command.Category + " - ToggleList",
+                        name: command.Name,
+                        style: {
+                          //text: command.Name,
+                          text:
+                            "concat('" +
+                            command.Name +
+                            "' ,$(" +
+                            instanceId +
+                            ":" +
+                            variableId +
+                            "))",
+                          textExpression: true,
+                          size: "14",
+                          color: "16777215",
+                          bgcolor: combineRgb(0, 0, 0),
+                        },
+                        steps: [
                           {
-                            actionId: command.Name,
+                            down: [
+                              {
+                                actionId: command.Name,
+                              },
+                            ],
+                            up: [],
                           },
                         ],
-                        up: [],
-                      },
-                    ],
-                  });
+                      });
+                    }
+                  }
                 } else if (
                   command.Settings.includes("?=+-") &&
                   command.min !== "" &&
