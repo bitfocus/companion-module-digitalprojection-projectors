@@ -24,10 +24,17 @@
 	},
 	"manufacturer": "DigitalProjection",
 	"products": [
-		"E-Vision Laser: 8500, 7500, 15000 WU & 13000 WU \nM-Vision: 23000 WU, Laser 21K, 21000 WU,27000 WU, 24000 WU, 21000 WU II\nTitan Laser: 37000 WU, 29000 WU, 33000 4K-UHD, 26000 4K-UHD\nTitan: 47000 WU, 43000 WU, 42000 WU, 41000 4K-UHD, 37000 4K-UHD\nE-Vision:  10000i WU, 8000i WU, 10000 WU, 8000 WU\nEV: 5900_WU, 7010_WU, 5100_WU, 6110_WU\nSatellite HIGHlite Head: 4K-UHD & WU\nSatellite Titan Head:4K-UHD & WU\nMLS: 10000, 20000, 30000"
+		"Models supported by Projector Controller II"
 	],
 	"keywords": [
-		"Protocol",
+		"DigitalProjection",
+		"Satellite",
+		"MLS",
+		"SCM",
+		"Titan",
+		"HIGHlite",
+		"E-Vision",
+		"M-Vision",
 		"TCP",
 		"Projector"
 	]
