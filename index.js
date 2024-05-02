@@ -29,6 +29,14 @@ const ev5900wu = require("./src/models/ev5900wu");
 const ev6500ii = require("./src/models/ev6500ii");
 const ev9000 = require("./src/models/ev9000");
 const evision4k = require("./src/models/evision4k");
+const evision9100wu = require("./src/models/evision9100wu");
+const evision10000wu = require("./src/models/evision10000wu");
+const evisionlaser4k = require("./src/models/evisionlaser4k");
+const evisionlaser10k = require("./src/models/evisionlaser10k");
+const evisionlaser13k = require("./src/models/evisionlaser13k");
+const highlite4k = require("./src/models/highlite4k");
+const highlitelaser3d = require("./src/models/highlitelaser3d");
+const highlitelaserii3d = require("./src/models/highlitelaserii3d");
 
 class MlsInstance extends InstanceBase {
   constructor(internal) {
@@ -59,6 +67,14 @@ class MlsInstance extends InstanceBase {
       ...ev6500ii,
       ...ev9000,
       ...evision4k,
+      ...evision9100wu,
+      ...evision10000wu,
+      ...evisionlaser4k,
+      ...evisionlaser10k,
+      ...evisionlaser13k,
+      ...highlite4k,
+      ...highlitelaser3d,
+      ...highlitelaserii3d,
       ...utils,
     });
   }

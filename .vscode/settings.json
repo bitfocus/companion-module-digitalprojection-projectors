@@ -5,8 +5,11 @@
         "evision",
         "evisionlaser",
         "highlite",
+        "highlitelaser",
+        "highlitelaserii",
         "mvision",
         "mvisionlaser",
-        "satellitehighlite"
+        "satellitehighlite",
+        "titanlaser"
     ]
 }

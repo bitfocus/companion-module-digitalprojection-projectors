@@ -90,11 +90,8 @@ module.exports = {
                     });
                   } else {
                     {
-                      //Dropdown presets
-                      self.log(
-                        "debug",
-                        "adding dropdown preset: " + command.Name
-                      );
+                      //Toggle presets
+
                       presets.push({
                         type: "button",
                         category: command.Category + " - ToggleList",
@@ -115,6 +112,14 @@ module.exports = {
                           bgcolor: combineRgb(0, 0, 0),
                         },
                         steps: [
+                          {
+                            down: [
+                              {
+                                actionId: command.Name,
+                              },
+                            ],
+                            up: [],
+                          },
                           {
                             down: [
                               {
