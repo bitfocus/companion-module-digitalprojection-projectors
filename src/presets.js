@@ -91,7 +91,7 @@ module.exports = {
                   } else {
                     {
                       //Toggle presets
-
+                      let key = "id_" + command.Name;
                       presets.push({
                         type: "button",
                         category: command.Category + " - ToggleList",
@@ -116,6 +116,9 @@ module.exports = {
                             down: [
                               {
                                 actionId: command.Name,
+                                options: {
+                                  [key]: list[0].id,
+                                },
                               },
                             ],
                             up: [],
@@ -124,6 +127,9 @@ module.exports = {
                             down: [
                               {
                                 actionId: command.Name,
+                                options: {
+                                  [key]: list[1].id,
+                                },
                               },
                             ],
                             up: [],
