@@ -54,6 +54,7 @@ module.exports = {
                 if (list.length > 0) {
                   if (list.length !== 2) {
                     //Dropdown presets
+                    let key = "id_" + command.Name;
                     self.log(
                       "debug",
                       "adding dropdown preset: " + command.Name
@@ -82,6 +83,9 @@ module.exports = {
                           down: [
                             {
                               actionId: command.Name,
+                              options: {
+                                [key]: list[0].id,
+                              },
                             },
                           ],
                           up: [],
