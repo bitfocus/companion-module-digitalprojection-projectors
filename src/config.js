@@ -46,10 +46,13 @@ module.exports = {
               "Satellite Heads (HIGHlite 4K-UHD & HIGHlite WU, Titan 4K-UHD & Titan WU)",
           },
           { id: "mls10000", label: "MLS 10000,MLS 20000,MLS 30000" },
-          { id: "titan37000wu", label: "Titan 37000WU,Titan 29000WU" },
+          {
+            id: "titan37000wu",
+            label: "Titan Laser 37000WU,Titan Laser 29000WU",
+          },
           {
             id: "titan330004k",
-            label: "Titan 33000 4K-UHD,Titan 26000 4K-UHD",
+            label: "Titan Laser 33000 4K-UHD,Titan  Laser 26000 4K-UHD",
           },
           {
             id: "titan47000wu",
@@ -78,6 +81,12 @@ module.exports = {
             label:
               "E-Vision 10000I WU, E-Vision 8000i WU, E-Vision 10000 WU, E-Vision 8000 WU",
           },
+          {
+            id: "evisionlaser8500",
+            label: "E-Vision Laser 8500, E-Vision Laser 7500",
+          },
+          { id: "ev5100wu", label: "EV5100WU, EV6110WU" },
+          { id: "ev5900wu", label: "EV5900WU, EV7010WU" },
         ],
         default: "0",
         useVariables: true,
