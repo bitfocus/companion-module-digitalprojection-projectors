@@ -12,8 +12,10 @@ module.exports = {
         width: 12,
         value: `
 				<div class="alert alert-danger">
-					<h3>IMPORTANT MESSAGE</h3>
+					<h3>Module based on Digital Projection command protocols available on Digital Projection website</h3>
 					<div>
+          Actions, Variables and Presets are automatically generated based on available commands for model selected.
+          At connection creation, Initial requests to populate variables values are sent.
 					</div>
 				</div>
 			`,
@@ -21,7 +23,7 @@ module.exports = {
       {
         type: "textinput",
         id: "host",
-        label: "TCPTarget IP",
+        label: "TCP Target IP",
         width: 8,
         regex: Regex.IP,
       },
@@ -103,6 +105,15 @@ module.exports = {
         default: "0",
         useVariables: true,
         isVisible: true,
+      },
+      {
+        type: "number",
+        id: "timeout",
+        label: "Initial requests polling rate (ms)",
+        min: 500,
+        max: 5000,
+
+        default: 1100,
       },
     ];
   },

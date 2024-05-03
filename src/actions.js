@@ -7,7 +7,6 @@ module.exports = {
     let model = self.config.model.toUpperCase();
     if (self[model] !== undefined) {
       self[model].forEach((command) => {
-        //        self.log("debug", "searching for action: " + command.Name);
         if (
           command.Settings.toString().includes("?") &&
           !command.Name.includes("xxx") &&
@@ -30,7 +29,7 @@ module.exports = {
               previousDataValueWasEmpty = true;
             }
           }
-          //Search for "dropdown" commands
+          //Search for "dropdownList" commands
           if (list.length > 0) {
             actions[command.Name] = {
               name: command.Name,
@@ -72,7 +71,7 @@ module.exports = {
               },
             };
           }
-          //Search for "number" commands
+          //Search for "Range" commands
           else if (
             command.Settings.includes("?=+-") &&
             command.min !== "" &&
@@ -80,7 +79,6 @@ module.exports = {
             command.Name !== ""
           ) {
             let basename = command.Name;
-            //            self.log("debug", "numerical action creation: " + basename);
             actions[command.Name] = {
               name: command.Name,
               description:
@@ -190,7 +188,7 @@ module.exports = {
             };
           }
         }
-        //Search for "execute" commands
+        //Search for "Simple" commands
         else if (
           !command.Name.includes("xxx") &&
           command.Settings === "" &&
@@ -232,8 +230,9 @@ module.exports = {
         {
           type: "textinput",
           id: "id_send",
-          label: "Command:",
-          tooltip: "Use %hh to insert Hex codes",
+          label: "Send Command:",
+          tooltip:
+            "example : '*input.select = 0' \nRead Digital Projection relative protocols documentation \nfor available commands",
           default: "",
           useVariables: true,
         },
@@ -251,7 +250,6 @@ module.exports = {
            * and destroys the 'binary' content
            */
           const sendBuf = Buffer.from(cmd);
-          //self.socket.write(buf);
 
           self.log(
             "debug",

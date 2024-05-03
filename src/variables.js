@@ -5,8 +5,9 @@ module.exports = {
     let self = this;
     let variables = [];
     let variableObj = {};
-
+    // Generic variable
     variables.push({ variableId: "tcp_response", name: "Last TCP Response" });
+    // Model specific variables
     let model = self.config.model.toUpperCase();
     if (self[model]) {
       self[model].forEach((command) => {
@@ -53,7 +54,7 @@ module.exports = {
             });
           }
         } else if (command.CmdStr === "" && command.Value !== "") {
-          //Add global variables
+          //Constants
           let constantId = command.Name.toLowerCase().replaceAll(" ", "_");
           variables.push({
             variableId: constantId,
