@@ -92,8 +92,8 @@ class MlsInstance extends InstanceBase {
   async configUpdated(config) {
     this.config = config;
     await this.initActions();
-    this.initFeedbacks();
     await this.initVariables();
+    this.initFeedbacks();
     this.initPresets();
     this.updateStatus(InstanceStatus.Connecting);
     this.initTcpConnection();

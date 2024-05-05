@@ -1,15 +1,22 @@
 const { combineRgb } = require("@companion-module/base");
 const actions = require("./actions");
+const variables = require("./variables");
+const feedbacks = require("./feedbacks");
 
 module.exports = {
   initPresets: function () {
     let self = this;
     let presets = [];
 
+    const foregroundColor = combineRgb(255, 255, 255); // White
+    const foregroundColorBlack = combineRgb(0, 0, 0);
+    const backgroundColorRed = combineRgb(255, 0, 0); // Red
+    const backgroundColorGreen = combineRgb(0, 255, 0); // Green
+
     let model = self.config.model.toUpperCase();
     let instanceId = self.label;
 
-    self.log("debug", "instanceId: " + instanceId);
+    //self.log("debug", "instanceId: " + instanceId);
     if (self[model] !== undefined) {
       self[model].forEach((command) => {
         let variableId = "";
@@ -26,7 +33,6 @@ module.exports = {
             } else {
               variableId = command.CmdStr;
             }
-
             if (variableId !== "") {
               if (
                 command.Settings.toString().includes("?") &&
@@ -55,10 +61,10 @@ module.exports = {
                   if (list.length !== 2) {
                     //Dropdown presets
                     let key = "id_" + command.Name;
-                    self.log(
-                      "debug",
-                      "adding dropdown preset: " + command.Name
-                    );
+                    //self.log(
+                    //  "debug",
+                    //  "adding dropdown preset: " + command.Name
+                    //);
                     presets.push({
                       type: "button",
                       category: command.Category + " - ChoiceList",
@@ -67,15 +73,15 @@ module.exports = {
                         text:
                           "concat('" +
                           command.Name +
-                          "' ,$(" +
+                          ": ' ,$(" +
                           instanceId +
                           ":" +
                           variableId +
                           "))",
                         textExpression: true,
                         size: "14",
-                        color: "16777215",
-                        bgcolor: combineRgb(0, 0, 0),
+                        color: foregroundColorBlack,
+                        bgcolor: backgroundColorGreen,
                       },
                       steps: [
                         {
@@ -88,6 +94,18 @@ module.exports = {
                             },
                           ],
                           up: [],
+                        },
+                      ],
+                      feedbacks: [
+                        {
+                          feedbackId: variableId,
+                          style: {
+                            color: foregroundColor,
+                            bgcolor: backgroundColorRed,
+                          },
+                          options: [
+                            { value: self.getVariableValue(variableId) },
+                          ],
                         },
                       ],
                     });
@@ -103,15 +121,15 @@ module.exports = {
                           text:
                             "concat('" +
                             command.Name +
-                            "' ,$(" +
+                            ": ' ,$(" +
                             instanceId +
                             ":" +
                             variableId +
                             "))",
                           textExpression: true,
                           size: "14",
-                          color: "16777215",
-                          bgcolor: combineRgb(0, 0, 0),
+                          color: foregroundColorBlack,
+                          bgcolor: backgroundColorGreen,
                         },
                         steps: [
                           {
@@ -137,6 +155,18 @@ module.exports = {
                             up: [],
                           },
                         ],
+                        feedbacks: [
+                          {
+                            feedbackId: variableId,
+                            style: {
+                              color: foregroundColor,
+                              bgcolor: backgroundColorRed,
+                            },
+                            options: [
+                              { value: self.getVariableValue(variableId) },
+                            ],
+                          },
+                        ],
                       });
                     }
                   }
@@ -147,7 +177,7 @@ module.exports = {
                   command.Name !== ""
                 ) {
                   //Range presets
-                  self.log("debug", "adding range preset: " + command.Name);
+                  //self.log("debug", "adding range preset: " + command.Name);
                   presets.push({
                     type: "button",
                     category: command.Category + " - Value",
@@ -156,15 +186,15 @@ module.exports = {
                       text:
                         "concat('" +
                         command.Name +
-                        "' ,$(" +
+                        ": ' ,$(" +
                         instanceId +
                         ":" +
                         variableId +
                         "))",
                       textExpression: true,
                       size: "14",
-                      color: "16777215",
-                      bgcolor: combineRgb(0, 0, 0),
+                      color: foregroundColorBlack,
+                      bgcolor: backgroundColorGreen,
                     },
                     steps: [
                       {
@@ -174,6 +204,16 @@ module.exports = {
                           },
                         ],
                         up: [],
+                      },
+                    ],
+                    feedbacks: [
+                      {
+                        feedbackId: variableId,
+                        style: {
+                          color: foregroundColor,
+                          bgcolor: backgroundColorRed,
+                        },
+                        options: [{ value: self.getVariableValue(variableId) }],
                       },
                     ],
                   });
@@ -192,15 +232,15 @@ module.exports = {
                     text:
                       "concat('" +
                       command.Name +
-                      "' ,$(" +
+                      ": ' ,$(" +
                       instanceId +
                       ":" +
                       variableId +
                       "))",
                     textExpression: true,
                     size: "14",
-                    color: "16777215",
-                    bgcolor: combineRgb(0, 0, 0),
+                    color: foregroundColorBlack,
+                    bgcolor: backgroundColorGreen,
                   },
                   steps: [
                     {
@@ -210,6 +250,16 @@ module.exports = {
                         },
                       ],
                       up: [],
+                    },
+                  ],
+                  feedbacks: [
+                    {
+                      feedbackId: variableId,
+                      style: {
+                        color: foregroundColor,
+                        bgcolor: backgroundColorRed,
+                      },
+                      options: [{ value: self.getVariableValue(variableId) }],
                     },
                   ],
                 });

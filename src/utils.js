@@ -15,7 +15,7 @@ module.exports = {
     }
 
     self.updateStatus(InstanceStatus.Connecting);
-    self.log("debug", "instance is named: " + self.label);
+    //self.log("debug", "instance is named: " + self.label);
 
     if (self.config.host && self.config.tcpPort) {
       self.tcpSocket = new TCPHelper(self.config.host, self.config.tcpPort);
@@ -41,10 +41,10 @@ module.exports = {
               if (command.Settings.includes("?")) {
                 setTimeout(() => {
                   self.tcpSocket.send("*" + command.CmdStr + " ?\r");
-                  self.log(
-                    "debug",
-                    "initial Request sending: *" + command.CmdStr + " ?\r"
-                  );
+                  //self.log(
+                  //  "debug",
+                  //  "initial Request sending: *" + command.CmdStr + " ?\r"
+                  //);
                 }, parseInt(self.config.timeout) * (index + 1));
               }
             });
@@ -88,19 +88,21 @@ module.exports = {
     let cmdArray;
 
     let variableObj = {};
+    let incDataArg;
 
     let value;
     variableObj["tcp_response"] = data;
     cmdArray = data.trim().split("="); //split the data into an array
-    cmdArray_argument = cmdArray[0].split(" ")[1].replace(/[\s*]/g, ""); //get the cmdArray[0] as the argument
+    let cmdArrayArgument = cmdArray[0].split(" ")[1].replace(/[\s*]/g, "");
+    //cmdArray_argument = cmdArray[0].split(" ")[1].replace(/[\s*]/g, ""); //get the cmdArray[0] as the argument
     cmdArray_value = cmdArray[1]; //get the cmdArray[1] as the value
 
-    self.log("debug", "cmdArray_argument = " + cmdArray_argument);
-    self.log("debug", "cmdArray_value = " + cmdArray_value);
-    self.log("debug", "cmdArray_typeof_value = " + typeof cmdArray_value);
+    //self.log("debug", "cmdArray_argument = " + cmdArrayArgument);
+    //self.log("debug", "cmdArray_value = " + cmdArray_value);
+    //self.log("debug", "cmdArray_typeof_value = " + typeof cmdArray_value);
 
-    if (cmdArray_argument.includes(".")) {
-      cmdArray_argument = cmdArray_argument.split(".");
+    if (cmdArrayArgument.includes(".")) {
+      cmdArray_argument = cmdArrayArgument.split(".");
       if (cmdArray_argument.length === 2) {
         incDataArg = cmdArray_argument[0] + "_" + cmdArray_argument[1];
       } else if (cmdArray_argument.length === 3) {
@@ -112,9 +114,76 @@ module.exports = {
           cmdArray_argument[2];
       }
     } else {
-      incDataArg = cmdArray_argument;
+      incDataArg = cmdArrayArgument;
     }
-    variableObj[incDataArg] = cmdArray_value;
-    self.setVariableValues(variableObj);
+
+    let model = self.config.model.toUpperCase();
+    if (self[model] !== undefined) {
+      self[model].forEach((command) => {
+        if (cmdArrayArgument === command.CmdStr) {
+          {
+            // Iterate thru keys of command object to list keys starting with "data"
+            let dataKeys = [];
+            let previousDataValueWasEmpty = true;
+            let list = [];
+            dataKeys = Object.keys(command).filter((key) =>
+              key.startsWith("data")
+            );
+            for (let i = dataKeys.length - 1; i >= 0; i--) {
+              let dataKey = dataKeys[i];
+              let dataValue = command[dataKey];
+              if (dataValue !== "") {
+                list[i] = { id: i, label: dataValue };
+                previousDataValueWasEmpty = false;
+              } else if (!previousDataValueWasEmpty) {
+                list[i] = { id: i, label: "" };
+                previousDataValueWasEmpty = true;
+              }
+            }
+            //Search for "dropdownList" commands
+            if (list.length > 0) {
+              //self.log(
+              //  "debug",
+              //  "cmdArrayArgument = " +
+              //    cmdArrayArgument +
+              //    ", command.CmdStr = " +
+              //    command.CmdStr
+              //);
+
+              if (list[parseInt(cmdArray_value)]) {
+                //self.log(
+                //  "debug",
+                //  "name of returned option is: " +
+                //    list[parseInt(cmdArray_value)].label
+                //);
+                variableObj[incDataArg] = list[parseInt(cmdArray_value)].label;
+                self.setVariableValues(variableObj);
+                self.checkFeedbacks(incDataArg);
+              } else {
+                //self.log(
+                //  "debug",
+                //  "name of returned option is: " + cmdArray_value
+                //);
+                variableObj[incDataArg] = cmdArray_value;
+                self.setVariableValues(variableObj);
+                self.checkFeedbacks(incDataArg);
+              }
+            } else {
+              //self.log(
+              //  "debug",
+              //  "2. set variable value as this= " + cmdArray_value
+              //);
+              variableObj[incDataArg] = cmdArray_value;
+              self.setVariableValues(variableObj);
+              self.checkFeedbacks(incDataArg);
+            }
+          }
+        }
+      });
+    }
+
+    //variableObj[incDataArg] = cmdArray_value;
+    //self.setVariableValues(variableObj);
+    //self.checkFeedbacks(incDataArg);
   },
 };

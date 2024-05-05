@@ -12,6 +12,7 @@ module.exports = {
           !command.Name.includes("xxx") &&
           command.Name !== ""
         ) {
+          // Iterate thru keys of command object to list keys starting with "data"
           let dataKeys = [];
           let previousDataValueWasEmpty = true;
           let list = [];
@@ -54,18 +55,18 @@ module.exports = {
                     self.tcpSocket !== undefined &&
                     self.tcpSocket.isConnected
                   ) {
-                    self.log(
-                      "debug",
-                      "sending to " +
-                        self.config.host +
-                        ": " +
-                        arg +
-                        "=" +
-                        value
-                    );
+                    //self.log(
+                    //  "debug",
+                    //  "sending to " +
+                    //    self.config.host +
+                    //    ": " +
+                    //    arg +
+                    //    "=" +
+                    //    value
+                    //);
                     self.sendCommand(Buffer.from(arg + " = " + value));
                   } else {
-                    self.log("debug", "tcpSocket not connected :(");
+                    //self.log("debug", "tcpSocket not connected :(");
                   }
                 }
               },
@@ -131,7 +132,7 @@ module.exports = {
                 let choice = await self.parseVariablesInString(
                   action.options[basename]
                 );
-                self.log("debug", "choice : " + choice);
+                //self.log("debug", "choice : " + choice);
                 let value = await self.parseVariablesInString(
                   action.options[basename + " value"]
                 );
@@ -144,35 +145,35 @@ module.exports = {
                       self.tcpSocket !== undefined &&
                       self.tcpSocket.isConnected
                     ) {
-                      self.log(
-                        "debug",
-                        "sending to " +
-                          self.config.host +
-                          ": *" +
-                          command.CmdStr +
-                          "=" +
-                          value
-                      );
+                      //self.log(
+                      //  "debug",
+                      //  "sending to " +
+                      //    self.config.host +
+                      //    ": *" +
+                      //    command.CmdStr +
+                      //    "=" +
+                      //    value
+                      //);
                       self.sendCommand(
                         Buffer.from(command.CmdStr + " = " + value)
                       );
                     } else {
-                      self.log("debug", "tcpSocket not connected :(");
+                      //self.log("debug", "tcpSocket not connected :(");
                     }
                   } else if (choice === "true") {
                     if (
                       self.tcpSocket !== undefined &&
                       self.tcpSocket.isConnected
                     ) {
-                      self.log(
-                        "debug",
-                        "sending to " +
-                          self.config.host +
-                          ": *" +
-                          command.CmdStr +
-                          " " +
-                          commandChoice
-                      );
+                      //self.log(
+                      //  "debug",
+                      //  "sending to " +
+                      //    self.config.host +
+                      //    ": *" +
+                      //    command.CmdStr +
+                      //    " " +
+                      //    commandChoice
+                      //);
                       self.sendCommand(
                         Buffer.from(command.CmdStr + " " + commandChoice)
                       );
@@ -180,7 +181,7 @@ module.exports = {
                         self.sendCommand(Buffer.from(command.CmdStr + " ?"));
                       }, 1000);
                     } else {
-                      self.log("debug", "tcpSocket not connected :(");
+                      //self.log("debug", "tcpSocket not connected :(");
                     }
                   }
                 }
@@ -208,13 +209,13 @@ module.exports = {
             ],
             callback: async () => {
               if (self.tcpSocket !== undefined && self.tcpSocket.isConnected) {
-                self.log(
-                  "debug",
-                  "sending to " + self.config.host + ": *" + command.CmdStr
-                );
+                //self.log(
+                //  "debug",
+                //  "sending to " + self.config.host + ": *" + command.CmdStr
+                //);
                 self.sendCommand(Buffer.from(command.CmdStr));
               } else {
-                self.log("debug", "tcpSocket not connected :(");
+                //self.log("debug", "tcpSocket not connected :(");
               }
             },
           };
@@ -251,15 +252,15 @@ module.exports = {
            */
           const sendBuf = Buffer.from(cmd);
 
-          self.log(
-            "debug",
-            "sending to " + self.config.host + ": " + sendBuf.toString()
-          );
+          //self.log(
+          //  "debug",
+          //  "sending to " + self.config.host + ": " + sendBuf.toString()
+          //);
 
           if (self.tcpSocket !== undefined && self.tcpSocket.isConnected) {
             self.sendCommand(sendBuf);
           } else {
-            self.log("debug", "tcpSocket not connected :(");
+            //self.log("debug", "tcpSocket not connected :(");
           }
         }
       },
