@@ -6,7 +6,8 @@ A companion module to control and monitor Digital Projection projectors.
 
     Models supported by Projector Controller II
 
-    ["Satellite HIGHlite Head 4K-UHD", "Satellite HIGHlite Head WU", "Satellite Titan Head 4K-UHD", "Satellite Titan Head WU"],
+    ["Satellite HIGHlite Head 4K-UHD", "Satellite HIGHlite Head WU", \
+    "Satellite Titan Head 4K-UHD", "Satellite Titan Head WU"],
     ["Satellite Control Module"],
     ["MLS 10000", "MLS 20000", "MLS 30000"],
     ["Titan 47000 WU", "Titan 43000 WU", "Titan 42000 WU"],
@@ -43,7 +44,8 @@ A companion module to control and monitor Digital Projection projectors.
         At connection creation, Initial requests to populate variables values are sent.
         This process may take some time, depending on the model chosen \
         and the number of variables.
-        TCP protocol used by Digital Projection needs to resend a response for each request before next request can be received.
+        TCP protocol used by Digital Projection needs to resend a response \
+        for each request before next request can be received.
         In the "Edit Connection" tab a `Initial requests polling rate (ms)` can be set.
         Default value is `1100ms` based on test made with \
         "Virtual Projectors" of "Controller Projector II" .
@@ -74,6 +76,6 @@ A companion module to control and monitor Digital Projection projectors.
 
     A generic "Send Command"Action is also created to send non-standard \
     commands to the target device.
-    
+
     List of available commands and detailed protocols by model \
     can be found on the [DigitalProjection](https://www.digitalprojection.com/) website.
