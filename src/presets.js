@@ -8,15 +8,31 @@ module.exports = {
     let self = this;
     let presets = [];
 
-    const foregroundColor = combineRgb(255, 255, 255); // White
+    const foregroundColorWhite = combineRgb(255, 255, 255); // White
     const foregroundColorBlack = combineRgb(0, 0, 0);
     const backgroundColorRed = combineRgb(255, 0, 0); // Red
     const backgroundColorGreen = combineRgb(0, 255, 0); // Green
+    const backgroundColorBlue = combineRgb(0, 0, 255); // Blue
+    const backgroundColorCyan = combineRgb(0, 255, 255); // Cyan
+    const backgroundColorMagenta = combineRgb(255, 0, 255); // Magenta
+    const backgroundColorYellow = combineRgb(255, 255, 0); // Yellow
+    const backgroundColorOrange = combineRgb(255, 165, 0); // Orange
+    const PolarNight0 = combineRgb(38, 40, 46);
+    const PolarNight1 = combineRgb(48, 50, 56);
+    const PolarNight2 = combineRgb(58, 60, 66);
+    const snow1 = combineRgb(216, 222, 233);
+    const snow2 = combineRgb(229, 233, 240);
+    const snow3 = combineRgb(236, 239, 244);
+    const auroraRed = combineRgb(210, 82, 82);
+    const auroraOrange = combineRgb(217, 154, 102);
+    const auroraYellow = combineRgb(223, 194, 101);
+    const auroraGreen = combineRgb(142, 192, 124);
+    const auroraBlue = combineRgb(97, 175, 239);
+    const auroraPurple = combineRgb(175, 152, 219);
 
     let model = self.config.model.toUpperCase();
     let instanceId = self.label;
 
-    //self.log("debug", "instanceId: " + instanceId);
     if (self[model] !== undefined) {
       self[model].forEach((command) => {
         let variableId = "";
@@ -61,10 +77,7 @@ module.exports = {
                   if (list.length !== 2) {
                     //Dropdown presets
                     let key = "id_" + command.Name;
-                    //self.log(
-                    //  "debug",
-                    //  "adding dropdown preset: " + command.Name
-                    //);
+
                     presets.push({
                       type: "button",
                       category: command.Category + " - ChoiceList",
@@ -80,8 +93,8 @@ module.exports = {
                           "))",
                         textExpression: true,
                         size: "14",
-                        color: foregroundColorBlack,
-                        bgcolor: backgroundColorGreen,
+                        color: PolarNight0,
+                        bgcolor: auroraPurple,
                       },
                       steps: [
                         {
@@ -100,8 +113,8 @@ module.exports = {
                         {
                           feedbackId: variableId,
                           style: {
-                            color: foregroundColor,
-                            bgcolor: backgroundColorRed,
+                            color: PolarNight0,
+                            bgcolor: backgroundColorOrange,
                           },
                           options: [
                             { value: self.getVariableValue(variableId) },
@@ -109,8 +122,83 @@ module.exports = {
                         },
                       ],
                     });
+                  } else if (
+                    list[0].label === "Off" &&
+                    list[1].label === "On"
+                  ) {
+                    {
+                      //Toggle ON/OFF presets
+                      let key = "id_" + command.Name;
+                      presets.push({
+                        type: "button",
+                        category: command.Category + " - ToggleList",
+                        name: command.Name,
+                        style: {
+                          text:
+                            "concat('" +
+                            command.Name +
+                            ": ' ,$(" +
+                            instanceId +
+                            ":" +
+                            variableId +
+                            "))",
+                          textExpression: true,
+                          size: "14",
+                          color: PolarNight0,
+                          bgcolor: backgroundColorOrange,
+                        },
+                        steps: [
+                          {
+                            down: [
+                              {
+                                actionId: command.Name,
+                                options: {
+                                  [key]: list[0].id,
+                                },
+                              },
+                            ],
+                            up: [],
+                          },
+                          {
+                            down: [
+                              {
+                                actionId: command.Name,
+                                options: {
+                                  [key]: list[1].id,
+                                },
+                              },
+                            ],
+                            up: [],
+                          },
+                        ],
+                        feedbacks: [
+                          {
+                            feedbackId: "On",
+                            style: {
+                              color: PolarNight0,
+                              bgcolor: auroraGreen,
+                            },
+                            options: {
+                              value: variableId,
+                            },
+                          },
+                          {
+                            feedbackId: "Off",
+                            style: {
+                              color: snow1,
+                              bgcolor: auroraRed,
+                            },
+                            options: {
+                              value: variableId,
+                            },
+                          },
+                        ],
+                      });
+                    }
                   } else {
                     {
+                      for (element in list) {
+                      }
                       //Toggle presets
                       let key = "id_" + command.Name;
                       presets.push({
@@ -129,7 +217,7 @@ module.exports = {
                           textExpression: true,
                           size: "14",
                           color: foregroundColorBlack,
-                          bgcolor: backgroundColorGreen,
+                          bgcolor: backgroundColorCyan,
                         },
                         steps: [
                           {
@@ -159,8 +247,8 @@ module.exports = {
                           {
                             feedbackId: variableId,
                             style: {
-                              color: foregroundColor,
-                              bgcolor: backgroundColorRed,
+                              color: PolarNight0,
+                              bgcolor: backgroundColorOrange,
                             },
                             options: [
                               { value: self.getVariableValue(variableId) },
@@ -176,8 +264,6 @@ module.exports = {
                   command.max !== "" &&
                   command.Name !== ""
                 ) {
-                  //Range presets
-                  //self.log("debug", "adding range preset: " + command.Name);
                   presets.push({
                     type: "button",
                     category: command.Category + " - Value",
@@ -193,8 +279,8 @@ module.exports = {
                         "))",
                       textExpression: true,
                       size: "14",
-                      color: foregroundColorBlack,
-                      bgcolor: backgroundColorGreen,
+                      color: PolarNight0,
+                      bgcolor: auroraBlue,
                     },
                     steps: [
                       {
@@ -210,8 +296,8 @@ module.exports = {
                       {
                         feedbackId: variableId,
                         style: {
-                          color: foregroundColor,
-                          bgcolor: backgroundColorRed,
+                          color: PolarNight0,
+                          bgcolor: backgroundColorOrange,
                         },
                         options: [{ value: self.getVariableValue(variableId) }],
                       },
@@ -239,8 +325,8 @@ module.exports = {
                       "))",
                     textExpression: true,
                     size: "14",
-                    color: foregroundColorBlack,
-                    bgcolor: backgroundColorGreen,
+                    color: PolarNight0,
+                    bgcolor: auroraBlue,
                   },
                   steps: [
                     {
@@ -256,8 +342,8 @@ module.exports = {
                     {
                       feedbackId: variableId,
                       style: {
-                        color: foregroundColor,
-                        bgcolor: backgroundColorRed,
+                        color: PolarNight0,
+                        bgcolor: backgroundColorOrange,
                       },
                       options: [{ value: self.getVariableValue(variableId) }],
                     },
@@ -307,8 +393,8 @@ module.exports = {
               style: {
                 text: command.Name,
                 size: "14",
-                color: "16777215",
-                bgcolor: combineRgb(0, 0, 0),
+                color: foregroundColorBlack,
+                bgcolor: backgroundColorMagenta,
               },
               steps: [
                 {

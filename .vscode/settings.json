@@ -11,6 +11,7 @@
         "mvision",
         "mvisionlaser",
         "satellitehighlite",
-        "titanlaser"
+        "titanlaser",
+        "static-text"
     ]
 }

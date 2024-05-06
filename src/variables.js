@@ -10,12 +10,6 @@ module.exports = {
     // Model specific variables
     let model = self.config.model.toUpperCase();
     if (self[model]) {
-      //  for (let i = self[model].length - 1; i >= 0; i--) {
-      //    let command = self[model][i];
-      //    if (command.Name.includes("xxx")) {
-      //      self[model].splice(i, 1);
-      //    }
-      //  }
       self[model].forEach((command) => {
         if (
           !command.Name.includes("xxx") &&

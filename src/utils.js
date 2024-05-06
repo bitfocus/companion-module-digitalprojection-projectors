@@ -94,12 +94,8 @@ module.exports = {
     variableObj["tcp_response"] = data;
     cmdArray = data.trim().split("="); //split the data into an array
     let cmdArrayArgument = cmdArray[0].split(" ")[1].replace(/[\s*]/g, "");
-    //cmdArray_argument = cmdArray[0].split(" ")[1].replace(/[\s*]/g, ""); //get the cmdArray[0] as the argument
-    cmdArray_value = cmdArray[1]; //get the cmdArray[1] as the value
 
-    //self.log("debug", "cmdArray_argument = " + cmdArrayArgument);
-    //self.log("debug", "cmdArray_value = " + cmdArray_value);
-    //self.log("debug", "cmdArray_typeof_value = " + typeof cmdArray_value);
+    cmdArray_value = cmdArray[1]; //get the cmdArray[1] as the value
 
     if (cmdArrayArgument.includes(".")) {
       cmdArray_argument = cmdArrayArgument.split(".");
@@ -142,37 +138,31 @@ module.exports = {
             }
             //Search for "dropdownList" commands
             if (list.length > 0) {
-              //self.log(
-              //  "debug",
-              //  "cmdArrayArgument = " +
-              //    cmdArrayArgument +
-              //    ", command.CmdStr = " +
-              //    command.CmdStr
-              //);
-
               if (list[parseInt(cmdArray_value)]) {
-                //self.log(
-                //  "debug",
-                //  "name of returned option is: " +
-                //    list[parseInt(cmdArray_value)].label
-                //);
-                variableObj[incDataArg] = list[parseInt(cmdArray_value)].label;
-                self.setVariableValues(variableObj);
-                self.checkFeedbacks(incDataArg);
+                if (list.length === 2 && list[0].label === "Off") {
+                  self.log(
+                    "debug",
+                    "name of ON/OFF returned option is: " +
+                      list[parseInt(cmdArray_value)].label
+                  );
+                  variableObj[incDataArg] =
+                    list[parseInt(cmdArray_value)].label;
+                  self.setVariableValues(variableObj);
+                  self.checkFeedbacks(incDataArg);
+                  self.checkFeedbacks("On");
+                  self.checkFeedbacks("Off");
+                } else {
+                  variableObj[incDataArg] =
+                    list[parseInt(cmdArray_value)].label;
+                  self.setVariableValues(variableObj);
+                  self.checkFeedbacks(incDataArg);
+                }
               } else {
-                //self.log(
-                //  "debug",
-                //  "name of returned option is: " + cmdArray_value
-                //);
                 variableObj[incDataArg] = cmdArray_value;
                 self.setVariableValues(variableObj);
                 self.checkFeedbacks(incDataArg);
               }
             } else {
-              //self.log(
-              //  "debug",
-              //  "2. set variable value as this= " + cmdArray_value
-              //);
               variableObj[incDataArg] = cmdArray_value;
               self.setVariableValues(variableObj);
               self.checkFeedbacks(incDataArg);
@@ -181,9 +171,5 @@ module.exports = {
         }
       });
     }
-
-    //variableObj[incDataArg] = cmdArray_value;
-    //self.setVariableValues(variableObj);
-    //self.checkFeedbacks(incDataArg);
   },
 };
