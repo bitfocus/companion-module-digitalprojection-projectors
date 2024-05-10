@@ -25,34 +25,31 @@ module.exports = {
 
         let modelChoice = self.config.model.toUpperCase();
 
-        async function init() {
-          try {
-            let filteredArray = await new Promise((resolve, reject) => {
-              let filteredArray = self[modelChoice].filter((obj) => {
-                if (obj.Name.includes("xxx")) {
-                  return false;
-                }
-                return true; // Keep this object
-              });
-              resolve(filteredArray);
-            });
-            self[modelChoice] = filteredArray;
-            filteredArray.forEach((command, index) => {
-              if (command.Settings.includes("?")) {
-                setTimeout(() => {
-                  self.tcpSocket.send("*" + command.CmdStr + " ?\r");
-                  //self.log(
-                  //  "debug",
-                  //  "initial Request sending: *" + command.CmdStr + " ?\r"
-                  //);
-                }, parseInt(self.config.timeout) * (index + 1));
-              }
-            });
-          } catch (error) {
-            self.log("error", error);
+        let id = self[modelChoice].length - 1;
+
+        while (id >= 0) {
+          if (self[modelChoice][id].Name.includes("xxx")) {
+            self[modelChoice].splice(id, 1);
           }
+          id--;
         }
-        init();
+        let index = 0;
+        self[modelChoice].forEach((command) => {
+          if (command.Settings.includes("?")) {
+            setTimeout(() => {
+              self.tcpSocket.send("*" + command.CmdStr + " ?\r");
+              self.log(
+                "debug",
+                "initial Request sending for command Name: *" +
+                  command.CmdStr +
+                  " ?\r"
+              );
+            }, parseInt(self.config.timeout) * index);
+            index++;
+          } else {
+            return;
+          }
+        });
       });
       self.tcpSocket.on("error", (err) => {
         self.updateStatus(InstanceStatus.ConnectionFailure, err.message);
@@ -65,8 +62,8 @@ module.exports = {
       });
 
       self.tcpSocket.on("data", (data) => {
-        let indata = data.toString("utf8");
-        self.processFeedback(indata);
+        let incomingData = data.toString("utf8");
+        self.processFeedback(incomingData);
       });
     } else {
       self.updateStatus(InstanceStatus.BadConfig);
@@ -83,93 +80,100 @@ module.exports = {
     }
   },
 
-  processFeedback: function (data) {
+  processFeedback: function (incomingData) {
     let self = this;
-    let cmdArray;
-
     let variableObj = {};
-    let incDataArg;
+    let argument;
+    let dataArray = incomingData.trim().split("="); //split the data into an array
+    let rawArgument = dataArray[0].split(" ")[1].replace(/[\s*]/g, "");
+    let value = dataArray[1]; //get the cmdArray[1] as the value
 
-    let value;
-    variableObj["tcp_response"] = data;
-    cmdArray = data.trim().split("="); //split the data into an array
-    let cmdArrayArgument = cmdArray[0].split(" ")[1].replace(/[\s*]/g, "");
-
-    cmdArray_value = cmdArray[1]; //get the cmdArray[1] as the value
-
-    if (cmdArrayArgument.includes(".")) {
-      cmdArray_argument = cmdArrayArgument.split(".");
-      if (cmdArray_argument.length === 2) {
-        incDataArg = cmdArray_argument[0] + "_" + cmdArray_argument[1];
-      } else if (cmdArray_argument.length === 3) {
-        incDataArg =
-          cmdArray_argument[0] +
-          "_" +
-          cmdArray_argument[1] +
-          "_" +
-          cmdArray_argument[2];
+    if (rawArgument.includes(".")) {
+      let argumentParts = rawArgument.split(".");
+      if (argumentParts.length === 2) {
+        argument = argumentParts[0] + "_" + argumentParts[1];
+      } else if (argumentParts.length === 3) {
+        argument =
+          argumentParts[0] + "_" + argumentParts[1] + "_" + argumentParts[2];
       }
     } else {
-      incDataArg = cmdArrayArgument;
+      argument = rawArgument;
     }
 
     let model = self.config.model.toUpperCase();
     if (self[model] !== undefined) {
       self[model].forEach((command) => {
-        if (cmdArrayArgument === command.CmdStr) {
+        if (rawArgument === command.CmdStr) {
           {
             // Iterate thru keys of command object to list keys starting with "data"
-            let dataKeys = [];
-            let previousDataValueWasEmpty = true;
-            let list = [];
-            dataKeys = Object.keys(command).filter((key) =>
-              key.startsWith("data")
-            );
-            for (let i = dataKeys.length - 1; i >= 0; i--) {
-              let dataKey = dataKeys[i];
-              let dataValue = command[dataKey];
-              if (dataValue !== "") {
-                list[i] = { id: i, label: dataValue };
-                previousDataValueWasEmpty = false;
-              } else if (!previousDataValueWasEmpty) {
-                list[i] = { id: i, label: "" };
-                previousDataValueWasEmpty = true;
-              }
-            }
+            let list = this.createList(command);
             //Search for "dropdownList" commands
             if (list.length > 0) {
-              if (list[parseInt(cmdArray_value)]) {
+              if (list[parseInt(value)]) {
                 if (list.length === 2 && list[0].label === "Off") {
-                  self.log(
-                    "debug",
-                    "name of ON/OFF returned option is: " +
-                      list[parseInt(cmdArray_value)].label
-                  );
-                  variableObj[incDataArg] =
-                    list[parseInt(cmdArray_value)].label;
+                  variableObj[argument] = list[parseInt(value)].label;
                   self.setVariableValues(variableObj);
-                  self.checkFeedbacks(incDataArg);
+                  self.checkFeedbacks(argument);
                   self.checkFeedbacks("On");
                   self.checkFeedbacks("Off");
                 } else {
-                  variableObj[incDataArg] =
-                    list[parseInt(cmdArray_value)].label;
+                  variableObj[argument] = list[parseInt(value)].label;
                   self.setVariableValues(variableObj);
-                  self.checkFeedbacks(incDataArg);
+                  self.checkFeedbacks(argument);
                 }
               } else {
-                variableObj[incDataArg] = cmdArray_value;
+                variableObj[argument] = value;
                 self.setVariableValues(variableObj);
-                self.checkFeedbacks(incDataArg);
+                self.checkFeedbacks(argument);
               }
             } else {
-              variableObj[incDataArg] = cmdArray_value;
+              variableObj[argument] = value;
               self.setVariableValues(variableObj);
-              self.checkFeedbacks(incDataArg);
+              self.checkFeedbacks(argument);
             }
           }
         }
       });
     }
+    //Update last TCP response variable
+    variableObj["tcp_response"] = incomingData;
+  },
+
+  reduceModel: function (model, self) {
+    let reducedModel = [];
+    if (self[model] !== undefined) {
+      reducedModel = self[model].filter((command) => {
+        if (
+          (!command.Name.includes("xxx") && command.Name !== "") ||
+          (command.CmdStr === "" && command.Value !== "")
+        ) {
+          return true; // Keep this object
+        } else {
+          return false; // Don't keep this object
+        }
+      });
+      return reducedModel;
+    }
+    self.log("debug", "model not found: " + model);
+  },
+
+  createList: function (command) {
+    // Iterate thru keys of command object to list keys starting with "data"
+    let dataKeys = [];
+    let previousDataValueWasEmpty = true;
+    let list = [];
+    dataKeys = Object.keys(command).filter((key) => key.startsWith("data"));
+    for (let i = dataKeys.length - 1; i >= 0; i--) {
+      let dataKey = dataKeys[i];
+      let dataValue = command[dataKey];
+      if (dataValue !== "") {
+        list[i] = { id: i, label: dataValue };
+        previousDataValueWasEmpty = false;
+      } else if (!previousDataValueWasEmpty) {
+        list[i] = { id: i, label: "" };
+        previousDataValueWasEmpty = true;
+      }
+    }
+    return list;
   },
 };
