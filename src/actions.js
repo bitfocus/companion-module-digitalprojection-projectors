@@ -7,161 +7,162 @@ module.exports = {
     //Create automatically an action for each type of command
     let model = self.config.model.toUpperCase();
     let reducedModel = reduceModel(model, self);
-    reducedModel.forEach((command) => {
-      if (command.Settings.toString().includes("?")) {
-        let list = createList(command);
-        //Search for "dropdownList" commands
-        if (list.length > 0) {
+    if (reducedModel) {
+      reducedModel.forEach((command) => {
+        if (command.Settings.toString().includes("?")) {
+          let list = createList(command);
+          //Search for "dropdownList" commands
+          if (list.length > 0) {
+            actions[command.Name] = {
+              name: command.Name,
+              description: "Category: " + command.Category + ", Type: Dropdown",
+              options: [
+                {
+                  type: "dropdown",
+                  id: "id_" + command.Name,
+                  label: command.Name,
+                  choices: list,
+                  default: list[0].id,
+                  useVariables: true,
+                },
+              ],
+              callback: async (action) => {
+                let value = await self.parseVariablesInString(
+                  action.options["id_" + command.Name]
+                );
+                let arg = command.CmdStr;
+                if (value != "") {
+                  if (
+                    self.tcpSocket !== undefined &&
+                    self.tcpSocket.isConnected
+                  ) {
+                    self.sendCommand(Buffer.from(arg + " = " + value));
+                  } else {
+                  }
+                }
+              },
+            };
+          }
+          //Search for "Range" commands
+          else if (
+            command.Settings.includes("?=+-") &&
+            command.min !== "" &&
+            command.max !== "" &&
+            command.Name !== ""
+          ) {
+            let basename = command.Name;
+            actions[command.Name] = {
+              name: command.Name,
+              description:
+                "Category: " +
+                command.Category +
+                ", Type: Number from " +
+                command.min +
+                " to " +
+                command.max,
+              options: [
+                {
+                  type: "checkbox",
+                  id: basename,
+                  label: "checked = send command / unchecked = send value",
+                  default: true,
+                  useVariables: true,
+                },
+                {
+                  type: "dropdown",
+                  id: basename + " command",
+                  label: basename + " command",
+                  choices: [
+                    { id: 0, label: "-- Select Command --" },
+                    { id: "+", label: "increment" },
+                    { id: "-", label: "decrement" },
+                    { id: "#", label: "reset to default" },
+                  ],
+                  default: 0,
+                  useVariables: true,
+                  isVisibleData: { basename: basename },
+                  isVisible: (options, isVisibleData) =>
+                    options[isVisibleData.basename] === true,
+                },
+                {
+                  type: "number",
+                  id: basename + " value",
+                  label: basename + " value",
+                  min: command.min,
+                  max: command.max,
+                  step: 1,
+                  range: true,
+                  default: Math.round((command.min + command.max) / 2),
+                  useVariables: true,
+                  isVisibleData: { basename: basename },
+                  isVisible: (options, isVisibleData) =>
+                    options[isVisibleData.basename] === false,
+                },
+              ],
+              callback: async (action) => {
+                let choice = await self.parseVariablesInString(
+                  action.options[basename]
+                );
+                let value = await self.parseVariablesInString(
+                  action.options[basename + " value"]
+                );
+                let commandChoice = await self.parseVariablesInString(
+                  action.options[basename + " command"]
+                );
+                if (value != "" && commandChoice != "") {
+                  if (choice === "false") {
+                    if (
+                      self.tcpSocket !== undefined &&
+                      self.tcpSocket.isConnected
+                    ) {
+                      self.sendCommand(
+                        Buffer.from(command.CmdStr + " = " + value)
+                      );
+                    } else {
+                    }
+                  } else if (choice === "true") {
+                    if (
+                      self.tcpSocket !== undefined &&
+                      self.tcpSocket.isConnected
+                    ) {
+                      self.sendCommand(
+                        Buffer.from(command.CmdStr + " " + commandChoice)
+                      );
+                      setTimeout(() => {
+                        self.sendCommand(Buffer.from(command.CmdStr + " ?"));
+                      }, 1000);
+                    } else {
+                    }
+                  }
+                }
+              },
+            };
+          }
+        }
+        //Search for "Simple" commands
+        else if (command.Settings === "") {
           actions[command.Name] = {
             name: command.Name,
-            description: "Category: " + command.Category + ", Type: Dropdown",
+            description: "Category: " + command.Category + ", Type: Execute",
             options: [
               {
-                type: "dropdown",
+                type: "static-text",
                 id: "id_" + command.Name,
                 label: command.Name,
-                choices: list,
-                default: list[0].id,
+                value: command.CmdStr,
                 useVariables: true,
               },
             ],
-            callback: async (action) => {
-              let value = await self.parseVariablesInString(
-                action.options["id_" + command.Name]
-              );
-              let arg = command.CmdStr;
-              if (value != "") {
-                if (
-                  self.tcpSocket !== undefined &&
-                  self.tcpSocket.isConnected
-                ) {
-                  self.sendCommand(Buffer.from(arg + " = " + value));
-                } else {
-                }
+            callback: async () => {
+              if (self.tcpSocket !== undefined && self.tcpSocket.isConnected) {
+                self.sendCommand(Buffer.from(command.CmdStr));
+              } else {
               }
             },
           };
         }
-        //Search for "Range" commands
-        else if (
-          command.Settings.includes("?=+-") &&
-          command.min !== "" &&
-          command.max !== "" &&
-          command.Name !== ""
-        ) {
-          let basename = command.Name;
-          actions[command.Name] = {
-            name: command.Name,
-            description:
-              "Category: " +
-              command.Category +
-              ", Type: Number from " +
-              command.min +
-              " to " +
-              command.max,
-            options: [
-              {
-                type: "checkbox",
-                id: basename,
-                label: "checked = send command / unchecked = send value",
-                default: true,
-                useVariables: true,
-              },
-              {
-                type: "dropdown",
-                id: basename + " command",
-                label: basename + " command",
-                choices: [
-                  { id: 0, label: "-- Select Command --" },
-                  { id: "+", label: "increment" },
-                  { id: "-", label: "decrement" },
-                  { id: "#", label: "reset to default" },
-                ],
-                default: 0,
-                useVariables: true,
-                isVisibleData: { basename: basename },
-                isVisible: (options, isVisibleData) =>
-                  options[isVisibleData.basename] === true,
-              },
-              {
-                type: "number",
-                id: basename + " value",
-                label: basename + " value",
-                min: command.min,
-                max: command.max,
-                step: 1,
-                range: true,
-                default: Math.round((command.min + command.max) / 2),
-                useVariables: true,
-                isVisibleData: { basename: basename },
-                isVisible: (options, isVisibleData) =>
-                  options[isVisibleData.basename] === false,
-              },
-            ],
-            callback: async (action) => {
-              let choice = await self.parseVariablesInString(
-                action.options[basename]
-              );
-              let value = await self.parseVariablesInString(
-                action.options[basename + " value"]
-              );
-              let commandChoice = await self.parseVariablesInString(
-                action.options[basename + " command"]
-              );
-              if (value != "" && commandChoice != "") {
-                if (choice === "false") {
-                  if (
-                    self.tcpSocket !== undefined &&
-                    self.tcpSocket.isConnected
-                  ) {
-                    self.sendCommand(
-                      Buffer.from(command.CmdStr + " = " + value)
-                    );
-                  } else {
-                  }
-                } else if (choice === "true") {
-                  if (
-                    self.tcpSocket !== undefined &&
-                    self.tcpSocket.isConnected
-                  ) {
-                    self.sendCommand(
-                      Buffer.from(command.CmdStr + " " + commandChoice)
-                    );
-                    setTimeout(() => {
-                      self.sendCommand(Buffer.from(command.CmdStr + " ?"));
-                    }, 1000);
-                  } else {
-                  }
-                }
-              }
-            },
-          };
-        }
-      }
-      //Search for "Simple" commands
-      else if (command.Settings === "") {
-        actions[command.Name] = {
-          name: command.Name,
-          description: "Category: " + command.Category + ", Type: Execute",
-          options: [
-            {
-              type: "static-text",
-              id: "id_" + command.Name,
-              label: command.Name,
-              value: command.CmdStr,
-              useVariables: true,
-            },
-          ],
-          callback: async () => {
-            if (self.tcpSocket !== undefined && self.tcpSocket.isConnected) {
-              self.sendCommand(Buffer.from(command.CmdStr));
-            } else {
-            }
-          },
-        };
-      }
-    });
-
+      });
+    }
     //Generic Command to send requests not listed in constants
     actions["send"] = {
       name: "Send Command",

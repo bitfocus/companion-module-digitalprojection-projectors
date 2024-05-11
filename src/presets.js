@@ -34,78 +34,32 @@ module.exports = {
     let model = self.config.model.toUpperCase();
     let instanceId = self.label;
     let reducedModel = reduceModel(model, self);
-    reducedModel.forEach((command) => {
-      let variableId = "";
-      if (command.Settings.toString().includes("?")) {
-        if (command.CmdStr.includes(".")) {
-          variableId = command.CmdStr.split(".");
-          if (variableId.length === 2) {
-            variableId = variableId[0] + "_" + variableId[1];
-          } else if (variableId.length === 3) {
-            variableId =
-              variableId[0] + "_" + variableId[1] + "_" + variableId[2];
+    if (reducedModel) {
+      reducedModel.forEach((command) => {
+        let variableId = "";
+        if (command.Settings.toString().includes("?")) {
+          if (command.CmdStr.includes(".")) {
+            variableId = command.CmdStr.split(".");
+            if (variableId.length === 2) {
+              variableId = variableId[0] + "_" + variableId[1];
+            } else if (variableId.length === 3) {
+              variableId =
+                variableId[0] + "_" + variableId[1] + "_" + variableId[2];
+            }
+          } else {
+            variableId = command.CmdStr;
           }
-        } else {
-          variableId = command.CmdStr;
-        }
-        if (variableId !== "") {
-          if (command.Settings.toString().includes("?")) {
-            //Search for "dropdown" commands
-            let list = createList(command);
-            if (list.length > 0) {
-              //DropdownList presets
-              if (list.length !== 2) {
-                let key = "id_" + command.Name;
-                presets.push({
-                  type: "button",
-                  category: command.Category + " - ChoiceList",
-                  name: command.Name,
-                  style: {
-                    text:
-                      "concat('" +
-                      command.Name +
-                      ": ' ,$(" +
-                      instanceId +
-                      ":" +
-                      variableId +
-                      "))",
-                    textExpression: true,
-                    size: "14",
-                    color: PolarNight0,
-                    bgcolor: auroraPurple,
-                  },
-                  steps: [
-                    {
-                      down: [
-                        {
-                          actionId: command.Name,
-                          options: {
-                            [key]: list[0].id,
-                          },
-                        },
-                      ],
-                      up: [],
-                    },
-                  ],
-                  feedbacks: [
-                    {
-                      feedbackId: variableId,
-                      style: {
-                        color: PolarNight0,
-                        bgcolor: backgroundColorOrange,
-                      },
-                      options: [{ value: self.getVariableValue(variableId) }],
-                    },
-                  ],
-                });
-              }
-              //ON/OFF Toggle presets
-              else if (list[0].label === "Off" && list[1].label === "On") {
-                {
+          if (variableId !== "") {
+            if (command.Settings.toString().includes("?")) {
+              //Search for "dropdown" commands
+              let list = createList(command);
+              if (list.length > 0) {
+                //DropdownList presets
+                if (list.length !== 2) {
                   let key = "id_" + command.Name;
                   presets.push({
                     type: "button",
-                    category: command.Category + " - ToggleList",
+                    category: command.Category + " - ChoiceList",
                     name: command.Name,
                     style: {
                       text:
@@ -119,7 +73,7 @@ module.exports = {
                       textExpression: true,
                       size: "14",
                       color: PolarNight0,
-                      bgcolor: backgroundColorOrange,
+                      bgcolor: auroraPurple,
                     },
                     steps: [
                       {
@@ -128,91 +82,6 @@ module.exports = {
                             actionId: command.Name,
                             options: {
                               [key]: list[0].id,
-                            },
-                          },
-                        ],
-                        up: [],
-                      },
-                      {
-                        down: [
-                          {
-                            actionId: command.Name,
-                            options: {
-                              [key]: list[1].id,
-                            },
-                          },
-                        ],
-                        up: [],
-                      },
-                    ],
-                    feedbacks: [
-                      {
-                        feedbackId: "On",
-                        style: {
-                          color: PolarNight0,
-                          bgcolor: auroraGreen,
-                        },
-                        options: {
-                          value: variableId,
-                        },
-                      },
-                      {
-                        feedbackId: "Off",
-                        style: {
-                          color: snow1,
-                          bgcolor: auroraRed,
-                        },
-                        options: {
-                          value: variableId,
-                        },
-                      },
-                    ],
-                  });
-                }
-              }
-              //Generic Toggle presets
-              else {
-                {
-                  for (element in list) {
-                  }
-
-                  let key = "id_" + command.Name;
-                  presets.push({
-                    type: "button",
-                    category: command.Category + " - ToggleList",
-                    name: command.Name,
-                    style: {
-                      text:
-                        "concat('" +
-                        command.Name +
-                        ": ' ,$(" +
-                        instanceId +
-                        ":" +
-                        variableId +
-                        "))",
-                      textExpression: true,
-                      size: "14",
-                      color: foregroundColorBlack,
-                      bgcolor: backgroundColorCyan,
-                    },
-                    steps: [
-                      {
-                        down: [
-                          {
-                            actionId: command.Name,
-                            options: {
-                              [key]: list[0].id,
-                            },
-                          },
-                        ],
-                        up: [],
-                      },
-                      {
-                        down: [
-                          {
-                            actionId: command.Name,
-                            options: {
-                              [key]: list[1].id,
                             },
                           },
                         ],
@@ -231,18 +100,195 @@ module.exports = {
                     ],
                   });
                 }
+                //ON/OFF Toggle presets
+                else if (list[0].label === "Off" && list[1].label === "On") {
+                  {
+                    let key = "id_" + command.Name;
+                    presets.push({
+                      type: "button",
+                      category: command.Category + " - ToggleList",
+                      name: command.Name,
+                      style: {
+                        text:
+                          "concat('" +
+                          command.Name +
+                          ": ' ,$(" +
+                          instanceId +
+                          ":" +
+                          variableId +
+                          "))",
+                        textExpression: true,
+                        size: "14",
+                        color: PolarNight0,
+                        bgcolor: backgroundColorOrange,
+                      },
+                      steps: [
+                        {
+                          down: [
+                            {
+                              actionId: command.Name,
+                              options: {
+                                [key]: list[0].id,
+                              },
+                            },
+                          ],
+                          up: [],
+                        },
+                        {
+                          down: [
+                            {
+                              actionId: command.Name,
+                              options: {
+                                [key]: list[1].id,
+                              },
+                            },
+                          ],
+                          up: [],
+                        },
+                      ],
+                      feedbacks: [
+                        {
+                          feedbackId: "On",
+                          style: {
+                            color: PolarNight0,
+                            bgcolor: auroraGreen,
+                          },
+                          options: {
+                            value: variableId,
+                          },
+                        },
+                        {
+                          feedbackId: "Off",
+                          style: {
+                            color: snow1,
+                            bgcolor: auroraRed,
+                          },
+                          options: {
+                            value: variableId,
+                          },
+                        },
+                      ],
+                    });
+                  }
+                }
+                //Generic Toggle presets
+                else {
+                  {
+                    for (element in list) {
+                    }
+
+                    let key = "id_" + command.Name;
+                    presets.push({
+                      type: "button",
+                      category: command.Category + " - ToggleList",
+                      name: command.Name,
+                      style: {
+                        text:
+                          "concat('" +
+                          command.Name +
+                          ": ' ,$(" +
+                          instanceId +
+                          ":" +
+                          variableId +
+                          "))",
+                        textExpression: true,
+                        size: "14",
+                        color: foregroundColorBlack,
+                        bgcolor: backgroundColorCyan,
+                      },
+                      steps: [
+                        {
+                          down: [
+                            {
+                              actionId: command.Name,
+                              options: {
+                                [key]: list[0].id,
+                              },
+                            },
+                          ],
+                          up: [],
+                        },
+                        {
+                          down: [
+                            {
+                              actionId: command.Name,
+                              options: {
+                                [key]: list[1].id,
+                              },
+                            },
+                          ],
+                          up: [],
+                        },
+                      ],
+                      feedbacks: [
+                        {
+                          feedbackId: variableId,
+                          style: {
+                            color: PolarNight0,
+                            bgcolor: backgroundColorOrange,
+                          },
+                          options: [
+                            { value: self.getVariableValue(variableId) },
+                          ],
+                        },
+                      ],
+                    });
+                  }
+                }
+              }
+              //Value presets
+              else if (
+                command.Settings.includes("?=+-") &&
+                command.min !== "" &&
+                command.max !== "" &&
+                command.Name !== ""
+              ) {
+                presets.push({
+                  type: "button",
+                  category: command.Category + " - Value",
+                  name: command.Name,
+                  style: {
+                    text:
+                      "concat('" +
+                      command.Name +
+                      ": ' ,$(" +
+                      instanceId +
+                      ":" +
+                      variableId +
+                      "))",
+                    textExpression: true,
+                    size: "14",
+                    color: PolarNight0,
+                    bgcolor: auroraBlue,
+                  },
+                  steps: [
+                    {
+                      down: [
+                        {
+                          actionId: command.Name,
+                        },
+                      ],
+                      up: [],
+                    },
+                  ],
+                  feedbacks: [
+                    {
+                      feedbackId: variableId,
+                      style: {
+                        color: PolarNight0,
+                        bgcolor: backgroundColorOrange,
+                      },
+                      options: [{ value: self.getVariableValue(variableId) }],
+                    },
+                  ],
+                });
               }
             }
-            //Value presets
-            else if (
-              command.Settings.includes("?=+-") &&
-              command.min !== "" &&
-              command.max !== "" &&
-              command.Name !== ""
-            ) {
+            //Simple Execute presets
+            else if (command.Settings === "") {
               presets.push({
                 type: "button",
-                category: command.Category + " - Value",
+                category: command.Category + " - Execute",
                 name: command.Name,
                 style: {
                   text:
@@ -281,76 +327,33 @@ module.exports = {
               });
             }
           }
-          //Simple Execute presets
-          else if (command.Settings === "") {
-            presets.push({
-              type: "button",
-              category: command.Category + " - Execute",
-              name: command.Name,
-              style: {
-                text:
-                  "concat('" +
-                  command.Name +
-                  ": ' ,$(" +
-                  instanceId +
-                  ":" +
-                  variableId +
-                  "))",
-                textExpression: true,
-                size: "14",
-                color: PolarNight0,
-                bgcolor: auroraBlue,
-              },
-              steps: [
-                {
-                  down: [
-                    {
-                      actionId: command.Name,
-                    },
-                  ],
-                  up: [],
-                },
-              ],
-              feedbacks: [
-                {
-                  feedbackId: variableId,
-                  style: {
-                    color: PolarNight0,
-                    bgcolor: backgroundColorOrange,
-                  },
-                  options: [{ value: self.getVariableValue(variableId) }],
-                },
-              ],
-            });
-          }
         }
-      }
-      //Others Execute Preset
-      else if (command.Settings === "") {
-        presets.push({
-          type: "button",
-          category: command.Category + " - Execute",
-          name: command.Name,
-          style: {
-            text: command.Name,
-            size: "14",
-            color: foregroundColorBlack,
-            bgcolor: backgroundColorMagenta,
-          },
-          steps: [
-            {
-              down: [
-                {
-                  actionId: command.Name,
-                },
-              ],
-              up: [],
+        //Others Execute Preset
+        else if (command.Settings === "") {
+          presets.push({
+            type: "button",
+            category: command.Category + " - Execute",
+            name: command.Name,
+            style: {
+              text: command.Name,
+              size: "14",
+              color: foregroundColorBlack,
+              bgcolor: backgroundColorMagenta,
             },
-          ],
-        });
-      }
-    });
-
+            steps: [
+              {
+                down: [
+                  {
+                    actionId: command.Name,
+                  },
+                ],
+                up: [],
+              },
+            ],
+          });
+        }
+      });
+    }
     self.setPresetDefinitions(presets);
   },
 };
