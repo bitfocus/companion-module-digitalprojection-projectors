@@ -7,15 +7,15 @@ module.exports = {
     let variables = [];
     let variableObj = {};
 
-    // Generic variable
+    //Set Generic Variable
     variables.push({ variableId: "tcp_response", name: "Last TCP Response" });
 
-    // Model specific variables
+    //Set Model specific variables
     let model = self.config.model.toUpperCase();
     let reducedModel = reduceModel(model, self);
     reducedModel.forEach((command) => {
+      //Search for available variables
       if (command.Settings.toString().includes("?")) {
-        //Set Variable Name
         if (command.CmdStr.includes(".")) {
           command = command.CmdStr.split(".");
           if (command.length === 2) {
@@ -53,8 +53,9 @@ module.exports = {
           };
         }
         variables.push(variableObj);
-      } else if (command.CmdStr === "" && command.Value !== "") {
-        //Constants
+      }
+      // Set Constants
+      else if (command.CmdStr === "" && command.Value !== "") {
         let constantId = command.Name.toLowerCase().replaceAll(" ", "_");
         variables.push({
           variableId: constantId,

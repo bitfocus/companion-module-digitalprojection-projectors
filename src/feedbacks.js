@@ -4,7 +4,6 @@ module.exports = {
   initFeedbacks: function () {
     let self = this;
     let feedbacks = {};
-    //let feedbackName = "";
 
     const foregroundColorWhite = combineRgb(255, 255, 255); // White
     const foregroundColorBlack = combineRgb(0, 0, 0);
@@ -35,7 +34,6 @@ module.exports = {
           !command.Name.includes("xxx") &&
           command.Settings.toString().includes("?")
         ) {
-          //let initialValue = command.Value;
           if (command.CmdStr.includes(".")) {
             command = command.CmdStr.split(".");
             if (command.length === 2) {

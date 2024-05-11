@@ -102,7 +102,6 @@ module.exports = {
               let choice = await self.parseVariablesInString(
                 action.options[basename]
               );
-              //self.log("debug", "choice : " + choice);
               let value = await self.parseVariablesInString(
                 action.options[basename + " value"]
               );

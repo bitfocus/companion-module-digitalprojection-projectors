@@ -15,8 +15,6 @@ module.exports = {
     }
 
     self.updateStatus(InstanceStatus.Connecting);
-    //self.log("debug", "instance is named: " + self.label);
-
     if (self.config.host && self.config.tcpPort) {
       self.tcpSocket = new TCPHelper(self.config.host, self.config.tcpPort);
 
@@ -24,7 +22,6 @@ module.exports = {
         self.updateStatus(InstanceStatus.Ok);
 
         let modelChoice = self.config.model.toUpperCase();
-
         let id = self[modelChoice].length - 1;
 
         while (id >= 0) {
@@ -40,9 +37,7 @@ module.exports = {
               self.tcpSocket.send("*" + command.CmdStr + " ?\r");
               self.log(
                 "debug",
-                "initial Request sending for command Name: *" +
-                  command.CmdStr +
-                  " ?\r"
+                "initial Request sending: *" + command.CmdStr + " ?\r"
               );
             }, parseInt(self.config.timeout) * index);
             index++;
