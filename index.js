@@ -38,7 +38,7 @@ const highlite4k = require("./src/models/highlite4k");
 const highlitelaser3d = require("./src/models/highlitelaser3d");
 const highlitelaserii3d = require("./src/models/highlitelaserii3d");
 
-class MlsInstance extends InstanceBase {
+class DigitalProjectionInstance extends InstanceBase {
   constructor(internal) {
     super(internal);
 
@@ -77,11 +77,24 @@ class MlsInstance extends InstanceBase {
       ...highlitelaserii3d,
       ...utils,
     });
+    this.TIMEOUTS = []; //used for polling device for initial requests
+    this.RECONNECT_INTERVAL = 30000; //used for reconnecting to device
   }
 
   async destroy() {
-    if (this.socket !== undefined) {
-      this.socket.destroy();
+    try {
+      if (this.socket !== undefined) {
+        this.socket.destroy();
+      }
+
+      this.TIMEOUTS.forEach((timeout) => {
+        clearTimeout(timeout);
+      });
+      clearInterval(this.RECONNECT_INTERVAL);
+
+      this.log("debug", "destroy");
+    } catch (error) {
+      this.log("error", "destroy error:" + error);
     }
   }
 
@@ -90,6 +103,10 @@ class MlsInstance extends InstanceBase {
   }
 
   async configUpdated(config) {
+    this.TIMEOUTS.forEach((timeout) => {
+      clearTimeout(timeout);
+    });
+    clearInterval(this.RECONNECT_INTERVAL);
     this.config = config;
     await this.initActions();
     await this.initVariables();
@@ -100,4 +117,4 @@ class MlsInstance extends InstanceBase {
   }
 }
 
-runEntrypoint(MlsInstance, UpgradeScripts);
+runEntrypoint(DigitalProjectionInstance, UpgradeScripts);

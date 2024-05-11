@@ -7,62 +7,128 @@ const {
 module.exports = {
   initTcpConnection: function () {
     let self = this;
-    let cmd;
-
     if (self.tcpSocket !== undefined) {
       self.tcpSocket.destroy(self);
       delete self.tcpSocket;
     }
 
     self.updateStatus(InstanceStatus.Connecting);
-    if (self.config.host && self.config.tcpPort) {
+    if (self.config.host && self.config.tcpPort && self.config.model !== "0") {
+      self.log(
+        "info",
+        `Opening connection to ${self.config.host}:${self.config.tcpPort}...`
+      );
       self.tcpSocket = new TCPHelper(self.config.host, self.config.tcpPort);
 
       self.tcpSocket.on("connect", () => {
         self.updateStatus(InstanceStatus.Ok);
-
-        let modelChoice = self.config.model.toUpperCase();
-        let id = self[modelChoice].length - 1;
-
-        while (id >= 0) {
-          if (self[modelChoice][id].Name.includes("xxx")) {
-            self[modelChoice].splice(id, 1);
-          }
-          id--;
-        }
-        let index = 0;
-        self[modelChoice].forEach((command) => {
-          if (command.Settings.includes("?")) {
-            setTimeout(() => {
-              self.tcpSocket.send("*" + command.CmdStr + " ?\r");
-              self.log(
-                "debug",
-                "initial Request sending: *" + command.CmdStr + " ?\r"
-              );
-            }, parseInt(self.config.timeout) * index);
-            index++;
-          } else {
-            return;
-          }
-        });
+        self.startInitialRequests();
       });
       self.tcpSocket.on("error", (err) => {
-        self.updateStatus(InstanceStatus.ConnectionFailure, err.message);
-        self.log("error", "Network error: " + err.message);
+        self.TIMEOUTS.forEach((timeout) => {
+          clearTimeout(timeout);
+        });
+        self.handleError(err);
       });
 
       self.tcpSocket.on("status_change", (status, message) => {
         self.updateStatus(status, message);
-        self.log("debug", message);
+        self.log("debug", "status_change: " + status);
       });
 
       self.tcpSocket.on("data", (data) => {
         let incomingData = data.toString("utf8");
         self.processFeedback(incomingData);
       });
+    } else if (self.config.model === "0") {
+      self.updateStatus(InstanceStatus.BadConfig);
+      self.log("error", "No model defined");
+    } else if (!self.config.host) {
+      self.updateStatus(InstanceStatus.BadConfig);
+      self.log("error", "No host defined");
     } else {
       self.updateStatus(InstanceStatus.BadConfig);
+      self.log("error", "No tcpPort defined");
     }
+  },
+
+  handleError: function (err) {
+    let self = this;
+
+    try {
+      let error = err.toString();
+      let printedError = false;
+
+      Object.keys(err).forEach(function (key) {
+        if (key === "code") {
+          if (err[key] === "ECONNREFUSED") {
+            error =
+              "Unable to communicate with Device. Connection refused. Is this the right IP address? Is it still online?";
+            self.log("error", error);
+            self.updateStatus(
+              InstanceStatus.ConnectionFailure,
+              "Connection Refused"
+            );
+            printedError = true;
+            if (self.socket !== undefined) {
+              self.socket.destroy();
+            }
+            self.startReconnectInterval();
+          } else if (err[key] === "ETIMEDOUT") {
+            error =
+              "Unable to communicate with Device. Connection timed out. Is this the right IP address? Is it still online?";
+            self.log("error", error);
+            self.updateStatus(
+              InstanceStatus.ConnectionFailure,
+              "Connection Timed Out"
+            );
+            printedError = true;
+            if (self.tcpSocket !== undefined) {
+              self.tcpSocket.destroy();
+            }
+            self.startReconnectInterval();
+          } else if (err[key] === "ECONNRESET") {
+            error =
+              "The connection was reset. Check the log for more error information.";
+            self.log("error", error);
+            self.updateStatus(
+              InstanceStatus.ConnectionFailure,
+              "Connection Reset"
+            );
+            printedError = true;
+            if (self.tcpSocket !== undefined) {
+              self.tcpSocket.destroy();
+            }
+            self.startReconnectInterval();
+          }
+        }
+      });
+
+      if (!printedError) {
+        self.log("error", `Error: ${error}`);
+      }
+    } catch (error) {
+      self.log("error", "Error handling error: " + error);
+      self.log("error", "Error: " + String(err));
+    }
+  },
+
+  startReconnectInterval: function () {
+    let self = this;
+
+    self.updateStatus(InstanceStatus.ConnectionFailure, "Reconnecting");
+
+    if (self.RECONNECT_INTERVAL !== undefined) {
+      clearInterval(self.RECONNECT_INTERVAL);
+      self.RECONNECT_INTERVAL = undefined;
+    }
+
+    self.log("info", "Attempting to reconnect in 30 seconds...");
+
+    self.RECONNECT_INTERVAL = setTimeout(
+      self.initTcpConnection.bind(this),
+      30000
+    );
   },
 
   sendCommand: function (cmd) {
@@ -73,6 +139,45 @@ module.exports = {
     } else {
       self.log("error", "tcpSocket not connected :(");
     }
+  },
+
+  startInitialRequests: function () {
+    let self = this;
+    //self.TIMEOUT = self.config.timeout;
+
+    let modelChoice = self.config.model.toUpperCase();
+    let id = self[modelChoice].length - 1;
+
+    while (id >= 0) {
+      if (self[modelChoice][id].Name.includes("xxx")) {
+        self[modelChoice].splice(id, 1);
+      }
+      id--;
+    }
+    let index = 0;
+    self[modelChoice].forEach((command) => {
+      if (command.Settings.includes("?")) {
+        if (self.tcpSocket.isConnected) {
+          let timeout = setTimeout(() => {
+            if (self.tcpSocket.isConnected) {
+              self.tcpSocket.send("*" + command.CmdStr + " ?\r");
+              self.log(
+                "debug",
+                "initial Request sending: *" + command.CmdStr + " ?\r"
+              );
+            } else {
+              self.log("error", "tcpSocket not connected :(");
+            }
+          }, parseInt(self.config.timeout) * index);
+          index++;
+          self.TIMEOUTS.push(timeout);
+        } else {
+          self.log("error", "tcpSocket not connected :(");
+        }
+      } else {
+        return;
+      }
+    });
   },
 
   processFeedback: function (incomingData) {
