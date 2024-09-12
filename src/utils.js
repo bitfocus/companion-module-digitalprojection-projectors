@@ -135,7 +135,13 @@ module.exports = {
     let self = this;
 
     if (self.tcpSocket !== undefined && self.tcpSocket.isConnected) {
-      self.tcpSocket.send("*" + cmd + "\r", "latin1");
+      if (cmd[0] !== "&") {
+        self.tcpSocket.send("*" + cmd + "\r", "latin1");
+        self.log("debug", "sent command : " + "*" + cmd);
+      } else {
+        self.tcpSocket.send(cmd + "\r", "latin1");
+        //self.log("debug", "sent command : " + cmd);
+      }
     } else {
       self.log("error", "tcpSocket not connected :(");
     }
@@ -182,42 +188,50 @@ module.exports = {
 
   processFeedback: function (incomingData) {
     let self = this;
+    incomingData = incomingData.trim();
+    self.log("debug", "incomingData: " + incomingData);
     let variableObj = {};
     let argument;
-    let dataArray = incomingData.trim().split("="); //split the data into an array
-    let rawArgument = dataArray[0].split(" ")[1].replace(/[\s*]/g, "");
-    let value = dataArray[1]; //get the cmdArray[1] as the value
+    if (incomingData !== "") {
+      let dataArray = incomingData.trim().split("="); //split the data into an array
+      let rawArgument = dataArray[0].split(" ")[1].replace(/[\s*]/g, "");
+      let value = dataArray[1]; //get the cmdArray[1] as the value
 
-    if (rawArgument.includes(".")) {
-      let argumentParts = rawArgument.split(".");
-      if (argumentParts.length === 2) {
-        argument = argumentParts[0] + "_" + argumentParts[1];
-      } else if (argumentParts.length === 3) {
-        argument =
-          argumentParts[0] + "_" + argumentParts[1] + "_" + argumentParts[2];
+      if (rawArgument.includes(".")) {
+        let argumentParts = rawArgument.split(".");
+        if (argumentParts.length === 2) {
+          argument = argumentParts[0] + "_" + argumentParts[1];
+        } else if (argumentParts.length === 3) {
+          argument =
+            argumentParts[0] + "_" + argumentParts[1] + "_" + argumentParts[2];
+        }
+      } else {
+        argument = rawArgument;
       }
-    } else {
-      argument = rawArgument;
-    }
 
-    let model = self.config.model.toUpperCase();
-    if (self[model] !== undefined) {
-      self[model].forEach((command) => {
-        if (rawArgument === command.CmdStr) {
-          {
-            // Iterate thru keys of command object to list keys starting with "data"
-            let list = this.createList(command);
-            //Search for "dropdownList" commands
-            if (list.length > 0) {
-              if (list[parseInt(value)]) {
-                if (list.length === 2 && list[0].label === "Off") {
-                  variableObj[argument] = list[parseInt(value)].label;
-                  self.setVariableValues(variableObj);
-                  self.checkFeedbacks(argument);
-                  self.checkFeedbacks("On");
-                  self.checkFeedbacks("Off");
+      let model = self.config.model.toUpperCase();
+      if (self[model] !== undefined) {
+        self[model].forEach((command) => {
+          if (rawArgument === command.CmdStr) {
+            {
+              // Iterate thru keys of command object to list keys starting with "data"
+              let list = this.createList(command);
+              //Search for "dropdownList" commands
+              if (list.length > 0) {
+                if (list[parseInt(value)]) {
+                  if (list.length === 2 && list[0].label === "Off") {
+                    variableObj[argument] = list[parseInt(value)].label;
+                    self.setVariableValues(variableObj);
+                    self.checkFeedbacks(argument);
+                    self.checkFeedbacks("On");
+                    self.checkFeedbacks("Off");
+                  } else {
+                    variableObj[argument] = list[parseInt(value)].label;
+                    self.setVariableValues(variableObj);
+                    self.checkFeedbacks(argument);
+                  }
                 } else {
-                  variableObj[argument] = list[parseInt(value)].label;
+                  variableObj[argument] = value;
                   self.setVariableValues(variableObj);
                   self.checkFeedbacks(argument);
                 }
@@ -226,17 +240,13 @@ module.exports = {
                 self.setVariableValues(variableObj);
                 self.checkFeedbacks(argument);
               }
-            } else {
-              variableObj[argument] = value;
-              self.setVariableValues(variableObj);
-              self.checkFeedbacks(argument);
             }
           }
-        }
-      });
+        });
+      }
+      //Update last TCP response variable
+      variableObj["tcp_response"] = incomingData;
     }
-    //Update last TCP response variable
-    variableObj["tcp_response"] = incomingData;
   },
 
   reduceModel: function (model, self) {
