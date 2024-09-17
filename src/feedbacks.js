@@ -1,9 +1,27 @@
 const { combineRgb } = require("@companion-module/base");
 
 module.exports = {
-  initFeedbacks: function () {
+  initFeedbacks: function (mls, element_name) {
     let self = this;
-    let feedbacks = {};
+    let feedbacks;
+    let model;
+    switch (mls) {
+      case "MLS":
+        feedbacks = self.feedbacks;
+        model = "MLS10000";
+        element_name = element_name.trim() + "_";
+        break;
+      case "Satellite":
+        feedbacks = self.feedbacks;
+        model = "SATELLITEHIGHLITE4K";
+        element_name = element_name.trim() + "_";
+        break;
+      default:
+        feedbacks = {};
+        model = self.config.model.toUpperCase();
+        element_name = "";
+        break;
+    }
 
     const foregroundColorWhite = combineRgb(255, 255, 255); // White
     const foregroundColorBlack = combineRgb(0, 0, 0);
@@ -27,7 +45,6 @@ module.exports = {
     const auroraBlue = combineRgb(97, 175, 239);
     const auroraPurple = combineRgb(175, 152, 219);
 
-    let model = self.config.model.toUpperCase();
     if (self[model]) {
       self[model].forEach((command) => {
         if (
@@ -37,8 +54,9 @@ module.exports = {
           if (command.CmdStr.includes(".")) {
             command = command.CmdStr.split(".");
             if (command.length === 2) {
-              let feedbackName = command[0] + "_" + command[1];
-              let varName = "$(" + self.label + ":" + feedbackName + ")";
+              let feedbackName = element_name + command[0] + "_" + command[1];
+              let varName =
+                "$(" + self.label + ":" + element_name + feedbackName + ")";
 
               feedbacks[feedbackName] = {
                 type: "boolean",
@@ -58,8 +76,9 @@ module.exports = {
               };
             } else if (command.length === 3) {
               let feedbackName =
-                command[0] + "_" + command[1] + "_" + command[2];
-              let varName = "$(" + self.label + ":" + feedbackName + ")";
+                element_name + command[0] + "_" + command[1] + "_" + command[2];
+              let varName =
+                "$(" + self.label + ":" + element_name + feedbackName + ")";
 
               feedbacks[feedbackName] = {
                 type: "boolean",
@@ -80,8 +99,9 @@ module.exports = {
               };
             }
           } else {
-            let feedbackName = command.CmdStr;
-            let varName = "$(" + self.label + ":" + feedbackName + ")";
+            let feedbackName = element_name + command.CmdStr;
+            let varName =
+              "$(" + self.label + ":" + element_name + feedbackName + ")";
             feedbacks[feedbackName] = {
               type: "boolean",
               name: feedbackName,
@@ -164,7 +184,8 @@ module.exports = {
         return false;
       },
     };
-
+    self.feedbacks = feedbacks;
+    //self.log("debug", "feedbacks: " + JSON.stringify(feedbacks));
     self.setFeedbackDefinitions(feedbacks);
   },
 };

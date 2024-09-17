@@ -37,6 +37,7 @@ const evisionlaser13k = require("./src/models/evisionlaser13k");
 const highlite4k = require("./src/models/highlite4k");
 const highlitelaser3d = require("./src/models/highlitelaser3d");
 const highlitelaserii3d = require("./src/models/highlitelaserii3d");
+const mls_inventory = require("./src/mls_inventory");
 
 class DigitalProjectionInstance extends InstanceBase {
   constructor(internal) {
@@ -76,6 +77,7 @@ class DigitalProjectionInstance extends InstanceBase {
       ...highlitelaser3d,
       ...highlitelaserii3d,
       ...utils,
+      ...mls_inventory,
     });
     this.TIMEOUTS = []; //used for polling device for initial requests
     this.RECONNECT_INTERVAL = 30000; //used for reconnecting to device

@@ -131,28 +131,56 @@ module.exports = {
     );
   },
 
-  sendCommand: function (cmd) {
-    let self = this;
+  sendCommand: function (cmd, prefix, self) {
+    if (!self) {
+      let self = this;
 
-    if (self.tcpSocket !== undefined && self.tcpSocket.isConnected) {
-      if (cmd[0] !== "&") {
-        self.tcpSocket.send("*" + cmd + "\r", "latin1");
-        self.log("debug", "sent command : " + "*" + cmd);
+      if (self.tcpSocket !== undefined && self.tcpSocket.isConnected) {
+        if (cmd[0] !== "&") {
+          self.tcpSocket.send("*" + cmd + "\r", "latin1");
+          self.log("debug", "sent command : " + "*" + cmd);
+        } else {
+          self.tcpSocket.send(cmd + "\r", "latin1");
+          self.log("debug", "sent command : " + cmd);
+        }
       } else {
-        self.tcpSocket.send(cmd + "\r", "latin1");
-        //self.log("debug", "sent command : " + cmd);
+        self.log("error", "tcpSocket not connected :(");
       }
     } else {
-      self.log("error", "tcpSocket not connected :(");
+      if (self.tcpSocket !== undefined && self.tcpSocket.isConnected) {
+        if (cmd[0] !== "&") {
+          self.tcpSocket.send("*" + cmd + "\r", "latin1");
+          self.log("debug", "sent command : " + "*" + cmd);
+        } else {
+          self.tcpSocket.send(cmd + "\r", "latin1");
+          self.log("debug", "sent command : " + cmd);
+        }
+      } else {
+        self.log("error", "tcpSocket not connected :(");
+      }
     }
   },
-
-  startInitialRequests: function () {
+  startInitialRequests: function (mls, elementName) {
     let self = this;
+    let modelChoice;
     //self.TIMEOUT = self.config.timeout;
+    switch (mls) {
+      case undefined:
+        modelChoice = self.config.model.toUpperCase();
+        break;
+      case "MLS":
+        modelChoice = "MLS10000";
+        break;
+      case "Satellite":
+        modelChoice = "SATELLITEHIGHLITE4K";
+        break;
+      default:
+        break;
+    }
 
-    let modelChoice = self.config.model.toUpperCase();
+    //let modelChoice = self.config.model.toUpperCase();
     let id = self[modelChoice].length - 1;
+    let interval = self.config.refresh;
 
     while (id >= 0) {
       if (self[modelChoice][id].Name.includes("xxx")) {
@@ -161,16 +189,69 @@ module.exports = {
       id--;
     }
     let index = 0;
+    setInterval(() => {
+      self[modelChoice].forEach((command) => {
+        if (command.Settings.includes("?")) {
+          if (self.tcpSocket.isConnected) {
+            let timeout = setTimeout(() => {
+              if (self.tcpSocket.isConnected) {
+                if (mls !== undefined) {
+                  self.tcpSocket.send(
+                    "&" + elementName.trim() + "." + command.CmdStr + " ?\r"
+                  );
+                  self.log(
+                    "debug",
+                    "mls Request sent: &" +
+                      elementName +
+                      "." +
+                      command.CmdStr +
+                      " ?\r"
+                  );
+                } else {
+                  self.tcpSocket.send("*" + command.CmdStr + " ?\r");
+                  self.log(
+                    "debug",
+                    "initial Request sending: *" + command.CmdStr + " ?\r"
+                  );
+                }
+              } else {
+                self.log("error", "tcpSocket not connected :(");
+              }
+            }, parseInt(self.config.timeout) * index);
+            index++;
+            self.TIMEOUTS.push(timeout);
+          } else {
+            self.log("error", "tcpSocket not connected :(");
+          }
+        } else {
+          return;
+        }
+      });
+    }, interval);
     self[modelChoice].forEach((command) => {
       if (command.Settings.includes("?")) {
         if (self.tcpSocket.isConnected) {
           let timeout = setTimeout(() => {
             if (self.tcpSocket.isConnected) {
-              self.tcpSocket.send("*" + command.CmdStr + " ?\r");
-              self.log(
-                "debug",
-                "initial Request sending: *" + command.CmdStr + " ?\r"
-              );
+              if (mls !== undefined) {
+                self.tcpSocket.send(
+                  "&" + elementName.trim() + "." + command.CmdStr + " ?\r"
+                );
+                self.log(
+                  "debug",
+                  "mls Request sent: &" +
+                    elementName +
+                    "." +
+                    command.CmdStr +
+                    " ?\r"
+                );
+              } else {
+                self.tcpSocket.send("*" + command.CmdStr + " ?\r");
+                self.log(
+                  "debug",
+                  "initial Request sending: *" + command.CmdStr + " ?\r"
+                );
+              }
             } else {
               self.log("error", "tcpSocket not connected :(");
             }
@@ -191,14 +272,17 @@ module.exports = {
     incomingData = incomingData.trim();
     self.log("debug", "incomingData: " + incomingData);
     let variableObj = {};
+
     let argument;
+    let argumentParts;
     if (incomingData !== "") {
+      let model;
       let dataArray = incomingData.trim().split("="); //split the data into an array
       let rawArgument = dataArray[0].split(" ")[1].replace(/[\s*]/g, "");
       let value = dataArray[1]; //get the cmdArray[1] as the value
 
       if (rawArgument.includes(".")) {
-        let argumentParts = rawArgument.split(".");
+        argumentParts = rawArgument.split(".");
         if (argumentParts.length === 2) {
           argument = argumentParts[0] + "_" + argumentParts[1];
         } else if (argumentParts.length === 3) {
@@ -207,9 +291,33 @@ module.exports = {
         }
       } else {
         argument = rawArgument;
+        argumentParts = rawArgument;
+      }
+      let isElement =
+        argumentParts[0].includes("MLS") ||
+        argumentParts[0].includes("Satellite");
+      switch (isElement) {
+        case true:
+          let isMLS = argumentParts[0].includes("MLS");
+          switch (isMLS) {
+            case true:
+              model = "MLS10000";
+              break;
+            case false:
+              model = "SATELLITEHIGHLITE4K";
+              break;
+            default:
+              break;
+          }
+          break;
+        case false:
+          model = self.config.model.toUpperCase();
+          break;
+        default:
+          break;
       }
 
-      let model = self.config.model.toUpperCase();
+      //let model = self.config.model.toUpperCase();
       if (self[model] !== undefined) {
         self[model].forEach((command) => {
           if (rawArgument === command.CmdStr) {
@@ -241,11 +349,77 @@ module.exports = {
                 self.checkFeedbacks(argument);
               }
             }
+          } else if (
+            rawArgument.includes(".") &&
+            argumentParts.slice(1).join(".") === command.CmdStr
+          ) {
+            ///MLS Parts///
+            // Iterate thru keys of command object to list keys starting with "data"
+            let list = this.createList(command);
+            //Search for "dropdownList" commands
+            if (list.length > 0) {
+              if (list[parseInt(value)]) {
+                if (list.length === 2 && list[0].label === "Off") {
+                  variableObj[argument] = list[parseInt(value)].label;
+                  self.setVariableValues(variableObj);
+                  self.checkFeedbacks(argument);
+                  self.checkFeedbacks("On");
+                  self.checkFeedbacks("Off");
+                } else {
+                  variableObj[argument] = list[parseInt(value)].label;
+                  self.setVariableValues(variableObj);
+                  self.checkFeedbacks(argument);
+                }
+              } else {
+                variableObj[argument] = value;
+                self.setVariableValues(variableObj);
+                self.checkFeedbacks(argument);
+              }
+            } else {
+              variableObj[argument] = value;
+              self.setVariableValues(variableObj);
+              self.checkFeedbacks(argument);
+            }
           }
         });
       }
       //Update last TCP response variable
       variableObj["tcp_response"] = incomingData;
+    }
+
+    /// MLS relative operations ///
+
+    if (incomingData.includes("inventory")) {
+      if (incomingData.includes("inventory.count")) {
+        let dataArray = incomingData.trim().split("=");
+        if (self.mls_elements_count) {
+          self.log(
+            "debug",
+            "self.mls_elements_count: " + self.mls_elements_count
+          );
+          if (self.mls_elements_count !== dataArray[1]) {
+            self.mls_elements_count = dataArray[1];
+            self.requestName(self.mls_elements_count);
+          }
+        } else {
+          self.mls_elements_count = dataArray[1];
+          self.requestName(self.mls_elements_count);
+        }
+      }
+      if (incomingData.includes("inventory.name")) {
+        let dataArray = incomingData.trim().split("=");
+        if (dataArray[1].includes("Satellite")) {
+          self.log("debug", "Satellite's name: " + dataArray[1]);
+          self.startInitialRequests("Satellite", dataArray[1]);
+          self.initVariables("Satellite", dataArray[1]);
+          self.initFeedbacks("Satellite", dataArray[1]);
+        } else if (dataArray[1].includes("MLS")) {
+          self.log("debug", "MLS's name: " + dataArray[1]);
+          self.startInitialRequests("MLS", dataArray[1]);
+          self.initVariables("MLS", dataArray[1]);
+          self.initFeedbacks("MLS", dataArray[1]);
+        }
+      }
     }
   },
 

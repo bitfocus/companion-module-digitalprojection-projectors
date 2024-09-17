@@ -1,11 +1,28 @@
 const { reduceModel, createList } = require("./utils");
 module.exports = {
-  initActions: function () {
+  initActions: function (mls, element_name) {
     let self = this;
-    let actions = {};
+    let model;
+    let actions;
+    switch (mls) {
+      case "MLS":
+        model = "MLS10000";
+        element_name = element_name.trim();
+        actions = self.actions;
+        break;
+      case "Satellite":
+        model = "SATELLITEHIGHLITE4K";
+        element_name = element_name.trim();
+        actions = self.actions;
+        break;
+      default:
+        model = self.config.model.toUpperCase();
+        element_name = "";
+        actions = {};
+        break;
+    }
 
     //Create automatically an action for each type of command
-    let model = self.config.model.toUpperCase();
     let reducedModel = reduceModel(model, self);
     if (reducedModel) {
       reducedModel.forEach((command) => {
@@ -200,6 +217,7 @@ module.exports = {
         }
       },
     };
+    self.actions = actions;
     self.setActionDefinitions(actions);
   },
 };

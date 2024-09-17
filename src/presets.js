@@ -354,6 +354,7 @@ module.exports = {
         }
       });
     }
+    self.presets = presets;
     self.setPresetDefinitions(presets);
   },
 };
