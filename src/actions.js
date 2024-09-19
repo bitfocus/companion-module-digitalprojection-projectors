@@ -4,20 +4,24 @@ module.exports = {
     let self = this;
     let model;
     let actions;
+    let element_command;
     switch (mls) {
       case "MLS":
         model = "MLS10000";
-        element_name = element_name.trim();
+        element_command = "&" + element_name.trim() + ".";
+        element_name = element_name.trim() + "_";
         actions = self.actions;
         break;
       case "Satellite":
         model = "SATELLITEHIGHLITE4K";
-        element_name = element_name.trim();
+        element_command = "&" + element_name.trim() + ".";
+        element_name = element_name.trim() + "_";
         actions = self.actions;
         break;
       default:
         model = self.config.model.toUpperCase();
         element_name = "";
+        element_command = "";
         actions = {};
         break;
     }
@@ -30,13 +34,13 @@ module.exports = {
           let list = createList(command);
           //Search for "dropdownList" commands
           if (list.length > 0) {
-            actions[command.Name] = {
-              name: command.Name,
+            actions[element_name + command.Name] = {
+              name: element_name + command.Name,
               description: "Category: " + command.Category + ", Type: Dropdown",
               options: [
                 {
                   type: "dropdown",
-                  id: "id_" + command.Name,
+                  id: "id_" + element_name + command.Name,
                   label: command.Name,
                   choices: list,
                   default: list[0].id,
@@ -45,7 +49,7 @@ module.exports = {
               ],
               callback: async (action) => {
                 let value = await self.parseVariablesInString(
-                  action.options["id_" + command.Name]
+                  action.options["id_" + element_name + command.Name]
                 );
                 let arg = command.CmdStr;
                 if (value != "") {
@@ -53,7 +57,9 @@ module.exports = {
                     self.tcpSocket !== undefined &&
                     self.tcpSocket.isConnected
                   ) {
-                    self.sendCommand(Buffer.from(arg + " = " + value));
+                    self.sendCommand(
+                      Buffer.from(element_command + arg + " = " + value)
+                    );
                   } else {
                   }
                 }
@@ -67,9 +73,9 @@ module.exports = {
             command.max !== "" &&
             command.Name !== ""
           ) {
-            let basename = command.Name;
-            actions[command.Name] = {
-              name: command.Name,
+            let basename = element_name + command.Name;
+            actions[element_name + command.Name] = {
+              name: element_name + command.Name,
               description:
                 "Category: " +
                 command.Category +
@@ -133,7 +139,9 @@ module.exports = {
                       self.tcpSocket.isConnected
                     ) {
                       self.sendCommand(
-                        Buffer.from(command.CmdStr + " = " + value)
+                        Buffer.from(
+                          element_command + command.CmdStr + " = " + value
+                        )
                       );
                     } else {
                     }
@@ -143,10 +151,14 @@ module.exports = {
                       self.tcpSocket.isConnected
                     ) {
                       self.sendCommand(
-                        Buffer.from(command.CmdStr + " " + commandChoice)
+                        Buffer.from(
+                          element_command + command.CmdStr + " " + commandChoice
+                        )
                       );
                       setTimeout(() => {
-                        self.sendCommand(Buffer.from(command.CmdStr + " ?"));
+                        self.sendCommand(
+                          Buffer.from(element_command + command.CmdStr + " ?")
+                        );
                       }, 1000);
                     } else {
                     }
@@ -158,21 +170,21 @@ module.exports = {
         }
         //Search for "Simple" commands
         else if (command.Settings === "") {
-          actions[command.Name] = {
-            name: command.Name,
+          actions[element_name + command.Name] = {
+            name: element_name + command.Name,
             description: "Category: " + command.Category + ", Type: Execute",
             options: [
               {
                 type: "static-text",
-                id: "id_" + command.Name,
-                label: command.Name,
+                id: "id_" + element_name + command.Name,
+                label: element_name + command.Name,
                 value: command.CmdStr,
                 useVariables: true,
               },
             ],
             callback: async () => {
               if (self.tcpSocket !== undefined && self.tcpSocket.isConnected) {
-                self.sendCommand(Buffer.from(command.CmdStr));
+                self.sendCommand(Buffer.from(element_command + command.CmdStr));
               } else {
               }
             },

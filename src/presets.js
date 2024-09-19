@@ -5,9 +5,27 @@ const feedbacks = require("./feedbacks");
 const { reduceModel, createList } = require("./utils");
 
 module.exports = {
-  initPresets: function () {
+  initPresets: function (mls, element_name) {
     let self = this;
-    let presets = [];
+    let presets;
+    let model;
+    switch (mls) {
+      case "MLS":
+        element_name = element_name.trim() + "_";
+        presets = self.presets;
+        model = "MLS10000";
+        break;
+      case "Satellite":
+        element_name = element_name.trim() + "_";
+        presets = self.presets;
+        model = "SATELLITEHIGHLITE4K";
+        break;
+      default:
+        element_name = "";
+        presets = [];
+        model = self.config.model.toUpperCase();
+        break;
+    }
 
     const foregroundColorWhite = combineRgb(255, 255, 255); // White
     const foregroundColorBlack = combineRgb(0, 0, 0); // Black
@@ -31,7 +49,6 @@ module.exports = {
     const auroraBlue = combineRgb(97, 175, 239);
     const auroraPurple = combineRgb(175, 152, 219);
 
-    let model = self.config.model.toUpperCase();
     let instanceId = self.label;
     let reducedModel = reduceModel(model, self);
     if (reducedModel) {
@@ -41,13 +58,18 @@ module.exports = {
           if (command.CmdStr.includes(".")) {
             variableId = command.CmdStr.split(".");
             if (variableId.length === 2) {
-              variableId = variableId[0] + "_" + variableId[1];
+              variableId = element_name + variableId[0] + "_" + variableId[1];
             } else if (variableId.length === 3) {
               variableId =
-                variableId[0] + "_" + variableId[1] + "_" + variableId[2];
+                element_name +
+                variableId[0] +
+                "_" +
+                variableId[1] +
+                "_" +
+                variableId[2];
             }
           } else {
-            variableId = command.CmdStr;
+            variableId = element_name + command.CmdStr;
           }
           if (variableId !== "") {
             if (command.Settings.toString().includes("?")) {
@@ -56,14 +78,15 @@ module.exports = {
               if (list.length > 0) {
                 //DropdownList presets
                 if (list.length !== 2) {
-                  let key = "id_" + command.Name;
+                  let key = "id_" + element_name + command.Name;
                   presets.push({
                     type: "button",
                     category: command.Category + " - ChoiceList",
-                    name: command.Name,
+                    name: element_name + command.Name,
                     style: {
                       text:
                         "concat('" +
+                        element_name +
                         command.Name +
                         ": ' ,$(" +
                         instanceId +
@@ -79,7 +102,7 @@ module.exports = {
                       {
                         down: [
                           {
-                            actionId: command.Name,
+                            actionId: element_name + command.Name,
                             options: {
                               [key]: list[0].id,
                             },
@@ -103,14 +126,15 @@ module.exports = {
                 //ON/OFF Toggle presets
                 else if (list[0].label === "Off" && list[1].label === "On") {
                   {
-                    let key = "id_" + command.Name;
+                    let key = "id_" + element_name + command.Name;
                     presets.push({
                       type: "button",
                       category: command.Category + " - ToggleList",
-                      name: command.Name,
+                      name: element_name + command.Name,
                       style: {
                         text:
                           "concat('" +
+                          element_name +
                           command.Name +
                           ": ' ,$(" +
                           instanceId +
@@ -126,7 +150,7 @@ module.exports = {
                         {
                           down: [
                             {
-                              actionId: command.Name,
+                              actionId: element_name + command.Name,
                               options: {
                                 [key]: list[0].id,
                               },
@@ -137,7 +161,7 @@ module.exports = {
                         {
                           down: [
                             {
-                              actionId: command.Name,
+                              actionId: element_name + command.Name,
                               options: {
                                 [key]: list[1].id,
                               },
@@ -177,14 +201,15 @@ module.exports = {
                     for (element in list) {
                     }
 
-                    let key = "id_" + command.Name;
+                    let key = "id_" + element_name + command.Name;
                     presets.push({
                       type: "button",
                       category: command.Category + " - ToggleList",
-                      name: command.Name,
+                      name: element_name + command.Name,
                       style: {
                         text:
                           "concat('" +
+                          element_name +
                           command.Name +
                           ": ' ,$(" +
                           instanceId +
@@ -200,7 +225,7 @@ module.exports = {
                         {
                           down: [
                             {
-                              actionId: command.Name,
+                              actionId: element_name + command.Name,
                               options: {
                                 [key]: list[0].id,
                               },
@@ -211,7 +236,7 @@ module.exports = {
                         {
                           down: [
                             {
-                              actionId: command.Name,
+                              actionId: element_name + command.Name,
                               options: {
                                 [key]: list[1].id,
                               },
@@ -246,10 +271,11 @@ module.exports = {
                 presets.push({
                   type: "button",
                   category: command.Category + " - Value",
-                  name: command.Name,
+                  name: element_name + command.Name,
                   style: {
                     text:
                       "concat('" +
+                      element_name +
                       command.Name +
                       ": ' ,$(" +
                       instanceId +
@@ -265,7 +291,7 @@ module.exports = {
                     {
                       down: [
                         {
-                          actionId: command.Name,
+                          actionId: element_name + command.Name,
                         },
                       ],
                       up: [],
@@ -289,10 +315,11 @@ module.exports = {
               presets.push({
                 type: "button",
                 category: command.Category + " - Execute",
-                name: command.Name,
+                name: element_name + command.Name,
                 style: {
                   text:
                     "concat('" +
+                    element_name +
                     command.Name +
                     ": ' ,$(" +
                     instanceId +
@@ -308,7 +335,7 @@ module.exports = {
                   {
                     down: [
                       {
-                        actionId: command.Name,
+                        actionId: element_name + command.Name,
                       },
                     ],
                     up: [],
@@ -333,9 +360,9 @@ module.exports = {
           presets.push({
             type: "button",
             category: command.Category + " - Execute",
-            name: command.Name,
+            name: element_name + command.Name,
             style: {
-              text: command.Name,
+              text: element_name + command.Name,
               size: "14",
               color: foregroundColorBlack,
               bgcolor: backgroundColorMagenta,
@@ -344,7 +371,7 @@ module.exports = {
               {
                 down: [
                   {
-                    actionId: command.Name,
+                    actionId: element_name + command.Name,
                   },
                 ],
                 up: [],

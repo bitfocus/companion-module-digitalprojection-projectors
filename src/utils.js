@@ -132,28 +132,33 @@ module.exports = {
   },
 
   sendCommand: function (cmd, prefix, self) {
+    //    self.log("debug", "sending command first character: " + cmd[0]);
+    cmd = cmd.toString("latin1");
     if (!self) {
       let self = this;
-
+      self.log("debug", "sending command first character: " + cmd[0]);
+      self.log("debug", "sending command case 1: " + cmd);
       if (self.tcpSocket !== undefined && self.tcpSocket.isConnected) {
         if (cmd[0] !== "&") {
           self.tcpSocket.send("*" + cmd + "\r", "latin1");
-          self.log("debug", "sent command : " + "*" + cmd);
+          self.log("debug", "sent command for system: " + "*" + cmd);
         } else {
           self.tcpSocket.send(cmd + "\r", "latin1");
-          self.log("debug", "sent command : " + cmd);
+          self.log("debug", "sent command for element: " + cmd);
         }
       } else {
         self.log("error", "tcpSocket not connected :(");
       }
     } else {
+      self.log("debug", "sending command first character: " + cmd[0]);
+      //      self.log("debug", "sending command case 2: " + cmd);
       if (self.tcpSocket !== undefined && self.tcpSocket.isConnected) {
         if (cmd[0] !== "&") {
           self.tcpSocket.send("*" + cmd + "\r", "latin1");
-          self.log("debug", "sent command : " + "*" + cmd);
+          //          self.log("debug", "sent command : " + "*" + cmd);
         } else {
           self.tcpSocket.send(cmd + "\r", "latin1");
-          self.log("debug", "sent command : " + cmd);
+          //          self.log("debug", "sent command : " + cmd);
         }
       } else {
         self.log("error", "tcpSocket not connected :(");
@@ -413,11 +418,15 @@ module.exports = {
           self.startInitialRequests("Satellite", dataArray[1]);
           self.initVariables("Satellite", dataArray[1]);
           self.initFeedbacks("Satellite", dataArray[1]);
+          self.initActions("Satellite", dataArray[1]);
+          self.initPresets("Satellite", dataArray[1]);
         } else if (dataArray[1].includes("MLS")) {
           self.log("debug", "MLS's name: " + dataArray[1]);
           self.startInitialRequests("MLS", dataArray[1]);
           self.initVariables("MLS", dataArray[1]);
           self.initFeedbacks("MLS", dataArray[1]);
+          self.initActions("MLS", dataArray[1]);
+          self.initPresets("MLS", dataArray[1]);
         }
       }
     }
