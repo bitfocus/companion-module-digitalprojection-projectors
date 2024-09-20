@@ -115,6 +115,22 @@ module.exports = {
 
         default: 1100,
       },
+      {
+        type: "dropdown",
+        id: "refresh",
+        label: "refresh variables polling rate (min)",
+        choices: [
+          { id: "60000", label: "1 min" },
+          { id: "120000", label: "2 min" },
+          { id: "180000", label: "3 min" },
+          { id: "240000", label: "4 min" },
+          { id: "300000", label: "5 min" },
+        ],
+
+        default: "300000",
+        useVariables: true,
+        isVisible: true,
+      },
     ];
   },
 };
