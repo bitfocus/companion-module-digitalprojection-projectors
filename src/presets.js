@@ -81,12 +81,11 @@ module.exports = {
                   let key = "id_" + element_name + command.Name;
                   presets.push({
                     type: "button",
-                    category: command.Category + " - ChoiceList",
+                    category: element_name + command.Category + " - ChoiceList",
                     name: element_name + command.Name,
                     style: {
                       text:
                         "concat('" +
-                        element_name +
                         command.Name +
                         ": ' ,$(" +
                         instanceId +
@@ -129,12 +128,12 @@ module.exports = {
                     let key = "id_" + element_name + command.Name;
                     presets.push({
                       type: "button",
-                      category: command.Category + " - ToggleList",
+                      category:
+                        element_name + command.Category + " - ToggleList",
                       name: element_name + command.Name,
                       style: {
                         text:
                           "concat('" +
-                          element_name +
                           command.Name +
                           ": ' ,$(" +
                           instanceId +
@@ -204,12 +203,12 @@ module.exports = {
                     let key = "id_" + element_name + command.Name;
                     presets.push({
                       type: "button",
-                      category: command.Category + " - ToggleList",
+                      category:
+                        element_name + command.Category + " - ToggleList",
                       name: element_name + command.Name,
                       style: {
                         text:
                           "concat('" +
-                          element_name +
                           command.Name +
                           ": ' ,$(" +
                           instanceId +
@@ -270,12 +269,11 @@ module.exports = {
               ) {
                 presets.push({
                   type: "button",
-                  category: command.Category + " - Value",
+                  category: element_name + command.Category + " - Value",
                   name: element_name + command.Name,
                   style: {
                     text:
                       "concat('" +
-                      element_name +
                       command.Name +
                       ": ' ,$(" +
                       instanceId +
@@ -314,12 +312,11 @@ module.exports = {
             else if (command.Settings === "") {
               presets.push({
                 type: "button",
-                category: command.Category + " - Execute",
+                category: element_name + command.Category + " - Execute",
                 name: element_name + command.Name,
                 style: {
                   text:
                     "concat('" +
-                    element_name +
                     command.Name +
                     ": ' ,$(" +
                     instanceId +
@@ -359,10 +356,10 @@ module.exports = {
         else if (command.Settings === "") {
           presets.push({
             type: "button",
-            category: command.Category + " - Execute",
+            category: element_name + command.Category + " - Execute",
             name: element_name + command.Name,
             style: {
-              text: element_name + command.Name,
+              text: command.Name,
               size: "14",
               color: foregroundColorBlack,
               bgcolor: backgroundColorMagenta,

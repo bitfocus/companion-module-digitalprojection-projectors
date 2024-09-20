@@ -282,10 +282,11 @@ module.exports = {
     let argumentParts;
     if (incomingData !== "") {
       let model;
-      let dataArray = incomingData.trim().split("="); //split the data into an array
+      let dataArray = incomingData.trim().split("=", 2); //split the data into an array
       let rawArgument = dataArray[0].split(" ")[1].replace(/[\s*]/g, "");
-      let value = dataArray[1]; //get the cmdArray[1] as the value
-
+      //let value = dataArray[1]; //get the cmdArray[1] as the value
+      let subId = incomingData.indexOf("=");
+      let value = incomingData.substring(subId + 1);
       if (rawArgument.includes(".")) {
         argumentParts = rawArgument.split(".");
         if (argumentParts.length === 2) {
@@ -396,7 +397,7 @@ module.exports = {
 
     if (incomingData.includes("inventory")) {
       if (incomingData.includes("inventory.count")) {
-        let dataArray = incomingData.trim().split("=");
+        let dataArray = incomingData.trim().split("=", 2);
         if (self.mls_elements_count) {
           self.log(
             "debug",
@@ -412,7 +413,7 @@ module.exports = {
         }
       }
       if (incomingData.includes("inventory.name")) {
-        let dataArray = incomingData.trim().split("=");
+        let dataArray = incomingData.trim().split("=", 2);
         if (dataArray[1].includes("Satellite")) {
           self.log("debug", "Satellite's name: " + dataArray[1]);
           self.startInitialRequests("Satellite", dataArray[1]);
