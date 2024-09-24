@@ -14,7 +14,7 @@
 		}
 	],
 	"legacyIds": [
-		"digitalprojection-mls, Digitalprojection-projectors"
+		"digitalprojection-mls, DigitalProjection-projectors"
 	],
 	"runtime": {
 		"type": "node18",
