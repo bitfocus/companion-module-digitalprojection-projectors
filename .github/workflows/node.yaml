@@ -71,17 +71,26 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
-      - name: Build package
+      - name: Build package (sanity check)
         run: yarn package
 
       - name: Detect version change
         id: ver
         shell: bash
         run: |
-          CURR=$(node -p "require('./package.json').version")
-          PREV_JSON=$(git show HEAD^:package.json 2>/dev/null || echo '')
+          # Read current version safely
+          CURR=$(node -e "try{console.log(require('./package.json').version||'')}catch(e){console.log('')}")
+
+          # Read previous package.json if there is a previous commit
+          if git rev-parse -q --verify HEAD^ >/dev/null; then
+            PREV_JSON=$(git show HEAD^:package.json 2>/dev/null || echo '')
+          else
+            PREV_JSON=''
+          fi
+
+          # Parse previous version safely from stdin content
           if [ -n "$PREV_JSON" ]; then
-            PREV=$(node -e "console.log(JSON.parse(process.stdin.read()).version)" <<< "$PREV_JSON")
+            PREV=$(node -e "const fs=require('fs');const s=fs.readFileSync(0,'utf8');let v='';if(s&&s.trim().length){try{v=(JSON.parse(s).version)||''}catch(e){v=''}}console.log(v)" <<< "$PREV_JSON")
           else
             PREV=""
           fi
@@ -104,11 +113,9 @@ jobs:
             git push origin "v$VER"
           fi
 
-      - name: Create GitHub Release and upload asset
+      - name: Create GitHub Release (source archives only)
         if: steps.ver.outputs.changed == 'true'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.ver.outputs.current }}
-          files: |
-            digitalprojection-projectors-${{ steps.ver.outputs.current }}.tgz
           generate_release_notes: true
