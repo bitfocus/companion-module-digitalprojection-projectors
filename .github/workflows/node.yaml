@@ -147,7 +147,7 @@ jobs:
             }
 
       - name: Create tag
-        if: steps.ver.outputs.changed == 'true' && steps.gate.outputs.proceed == 'true'
+        if: steps.gate.outputs.proceed == 'true'
         shell: bash
         run: |
           VER=${{ steps.ver.outputs.current }}
@@ -163,7 +163,7 @@ jobs:
           fi
 
       - name: Create GitHub Release (source archives only)
-        if: steps.ver.outputs.changed == 'true' && steps.gate.outputs.proceed == 'true'
+        if: steps.gate.outputs.proceed == 'true'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.ver.outputs.tag }}
