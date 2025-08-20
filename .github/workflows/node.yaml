@@ -98,8 +98,54 @@ jobs:
           echo "previous=$PREV" >> $GITHUB_OUTPUT
           if [ "$CURR" != "$PREV" ]; then echo "changed=true" >> $GITHUB_OUTPUT; else echo "changed=false" >> $GITHUB_OUTPUT; fi
 
+      - name: Check release conditions (no same version, greater than latest)
+        id: gate
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const curr = `${{ steps.ver.outputs.current }}`
+            if (!curr) {
+              core.setOutput('proceed', 'false')
+              core.setOutput('reason', 'no-version')
+              return
+            }
+            const norm = (v) => (v || '').toString().replace(/^v/, '')
+            const cmp = (a, b) => {
+              const pa = norm(a).split('.').map(Number)
+              const pb = norm(b).split('.').map(Number)
+              for (let i = 0; i < 3; i++) {
+                const da = pa[i] || 0
+                const db = pb[i] || 0
+                if (da > db) return 1
+                if (da < db) return -1
+              }
+              return 0
+            }
+            const { owner, repo } = context.repo
+            const releases = await github.paginate(github.rest.repos.listReleases, { owner, repo, per_page: 100 })
+            const same = releases.find((r) => norm(r.tag_name) === norm(curr))
+            if (same) {
+              core.setOutput('proceed', 'false')
+              core.setOutput('reason', 'exists')
+              return
+            }
+            const latest = releases.find((r) => !r.draft && !r.prerelease)
+            if (!latest) {
+              core.setOutput('proceed', 'true')
+              core.setOutput('latest', '')
+              return
+            }
+            if (cmp(curr, latest.tag_name) > 0) {
+              core.setOutput('proceed', 'true')
+              core.setOutput('latest', latest.tag_name)
+            } else {
+              core.setOutput('proceed', 'false')
+              core.setOutput('latest', latest.tag_name)
+              core.setOutput('reason', 'not-greater')
+            }
+
       - name: Create tag
-        if: steps.ver.outputs.changed == 'true'
+        if: steps.ver.outputs.changed == 'true' && steps.gate.outputs.proceed == 'true'
         shell: bash
         run: |
           VER=${{ steps.ver.outputs.current }}
@@ -114,7 +160,7 @@ jobs:
           fi
 
       - name: Create GitHub Release (source archives only)
-        if: steps.ver.outputs.changed == 'true'
+        if: steps.ver.outputs.changed == 'true' && steps.gate.outputs.proceed == 'true'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.ver.outputs.current }}
