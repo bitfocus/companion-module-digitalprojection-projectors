@@ -196,7 +196,7 @@ module.exports = {
     let index = 0;
     setInterval(() => {
       self[modelChoice].forEach((command) => {
-        if (command.Settings.includes("?")) {
+        if (command.Settings.toString().includes("?")) {
           if (self.tcpSocket.isConnected) {
             let timeout = setTimeout(() => {
               if (self.tcpSocket.isConnected) {
@@ -234,7 +234,7 @@ module.exports = {
       });
     }, interval);
     self[modelChoice].forEach((command) => {
-      if (command.Settings.includes("?")) {
+      if (command.Settings.toString().includes("?")) {
         if (self.tcpSocket.isConnected) {
           let timeout = setTimeout(() => {
             if (self.tcpSocket.isConnected) {
