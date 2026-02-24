@@ -1,5 +1,5 @@
 module.exports = {
-  EV5100WU: [
+  EV5900WU: [
     {
       Category: "Input",
       Name: "Input Select",
