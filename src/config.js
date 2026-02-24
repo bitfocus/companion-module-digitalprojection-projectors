@@ -118,8 +118,11 @@ module.exports = {
       {
         type: "dropdown",
         id: "refresh",
-        label: "refresh variables polling rate (min)",
+        label: "Refresh variables polling rate",
         choices: [
+          { id: "5000", label: "5 sec" },
+          { id: "10000", label: "10 sec" },
+          { id: "30000", label: "30 sec" },
           { id: "60000", label: "1 min" },
           { id: "120000", label: "2 min" },
           { id: "180000", label: "3 min" },

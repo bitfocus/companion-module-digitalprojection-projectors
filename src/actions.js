@@ -60,6 +60,11 @@ module.exports = {
                     self.sendCommand(
                       Buffer.from(element_command + arg + " = " + value)
                     );
+                    setTimeout(() => {
+                      self.sendCommand(
+                        Buffer.from(element_command + arg + " ?")
+                      );
+                    }, 500);
                   } else {
                   }
                 }
@@ -143,6 +148,11 @@ module.exports = {
                           element_command + command.CmdStr + " = " + value
                         )
                       );
+                      setTimeout(() => {
+                        self.sendCommand(
+                          Buffer.from(element_command + command.CmdStr + " ?")
+                        );
+                      }, 500);
                     } else {
                     }
                   } else if (choice === "true") {

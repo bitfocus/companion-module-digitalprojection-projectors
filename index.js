@@ -89,10 +89,18 @@ class DigitalProjectionInstance extends InstanceBase {
         this.socket.destroy();
       }
 
-      this.TIMEOUTS.forEach((timeout) => {
-        clearTimeout(timeout);
+      this.TIMEOUTS.forEach((handle) => {
+        clearTimeout(handle);
+        clearInterval(handle);
       });
       clearInterval(this.RECONNECT_INTERVAL);
+
+      if (this._cmdGuardTimer !== null) {
+        clearTimeout(this._cmdGuardTimer);
+        this._cmdGuardTimer = null;
+      }
+      this._cmdQueue = [];
+      this._cmdQueueRunning = false;
 
       this.log("debug", "destroy");
     } catch (error) {

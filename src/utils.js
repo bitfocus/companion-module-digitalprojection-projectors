@@ -12,6 +12,7 @@ module.exports = {
       delete self.tcpSocket;
     }
 
+    self.initCommandQueue();
     self.updateStatus(InstanceStatus.Connecting);
     if (self.config.host && self.config.tcpPort && self.config.model !== "0") {
       self.log(
@@ -38,6 +39,7 @@ module.exports = {
 
       self.tcpSocket.on("data", (data) => {
         let incomingData = data.toString("utf8");
+        self._notifyResponse();
         self.processFeedback(incomingData);
       });
     } else if (self.config.model === "0") {
@@ -131,44 +133,80 @@ module.exports = {
     );
   },
 
-  sendCommand: function (cmd, prefix, self) {
-    //    self.log("debug", "sending command first character: " + cmd[0]);
-    cmd = cmd.toString("latin1");
-    if (!self) {
-      let self = this;
-      self.log("debug", "sending command first character: " + cmd[0]);
-      self.log("debug", "sending command case 1: " + cmd);
-      if (self.tcpSocket !== undefined && self.tcpSocket.isConnected) {
-        if (cmd[0] !== "&") {
-          self.tcpSocket.send("*" + cmd + "\r", "latin1");
-          self.log("debug", "sent command for system: " + "*" + cmd);
-        } else {
-          self.tcpSocket.send(cmd + "\r", "latin1");
-          self.log("debug", "sent command for element: " + cmd);
-        }
-      } else {
-        self.log("error", "tcpSocket not connected :(");
-      }
+  initCommandQueue: function () {
+    let self = this;
+    self._cmdQueue = [];
+    self._cmdQueueRunning = false;
+    self._cmdWaitingForResponse = false;
+    self._cmdGuardTimer = null;
+  },
+
+  _processQueue: function () {
+    let self = this;
+    if (self._cmdQueueRunning || self._cmdQueue.length === 0) return;
+    if (!self.tcpSocket || !self.tcpSocket.isConnected) return;
+
+    self._cmdQueueRunning = true;
+    let item = self._cmdQueue.shift();
+    let raw = item.cmd.toString("latin1");
+    let toSend = raw[0] !== "&" ? "*" + raw + "\r" : raw + "\r";
+
+    self.tcpSocket.send(toSend, "latin1");
+    self.log("debug", "queue sent: " + toSend.trim());
+
+    if (item.priority) {
+      // User commands: short guard then release immediately
+      self._cmdGuardTimer = setTimeout(() => {
+        self._cmdQueueRunning = false;
+        self._processQueue();
+      }, 200);
     } else {
-      self.log("debug", "sending command first character: " + cmd[0]);
-      //      self.log("debug", "sending command case 2: " + cmd);
-      if (self.tcpSocket !== undefined && self.tcpSocket.isConnected) {
-        if (cmd[0] !== "&") {
-          self.tcpSocket.send("*" + cmd + "\r", "latin1");
-          //          self.log("debug", "sent command : " + "*" + cmd);
-        } else {
-          self.tcpSocket.send(cmd + "\r", "latin1");
-          //          self.log("debug", "sent command : " + cmd);
-        }
-      } else {
-        self.log("error", "tcpSocket not connected :(");
-      }
+      // Polling commands: wait for response or guard timeout
+      self._cmdGuardTimer = setTimeout(() => {
+        self._cmdQueueRunning = false;
+        self._processQueue();
+      }, parseInt(self.config.timeout) || 1100);
     }
   },
+
+  _notifyResponse: function () {
+    let self = this;
+    if (self._cmdGuardTimer !== null) {
+      clearTimeout(self._cmdGuardTimer);
+      self._cmdGuardTimer = null;
+    }
+    self._cmdQueueRunning = false;
+    self._processQueue();
+  },
+
+  sendCommand: function (cmd, prefix, self) {
+    if (!self) self = this;
+    let raw = cmd.toString("latin1");
+    if (!self._cmdQueue) self.initCommandQueue();
+    // Priority command: clear all pending polling items, insert at front
+    self._cmdQueue = self._cmdQueue.filter((item) => item.priority);
+    self._cmdQueue.unshift({ cmd: Buffer.from(raw, "latin1"), priority: true });
+    self._processQueue();
+  },
+  _enqueuePollCommands: function (mls, elementName, modelChoice) {
+    let self = this;
+    if (!self._cmdQueue) self.initCommandQueue();
+    self[modelChoice].forEach((command) => {
+      if (!command.Settings.toString().includes("?")) return;
+      let raw;
+      if (mls !== undefined) {
+        raw = "&" + elementName.trim() + "." + command.CmdStr + " ?";
+      } else {
+        raw = command.CmdStr + " ?";
+      }
+      self._cmdQueue.push({ cmd: Buffer.from(raw, "latin1"), priority: false });
+    });
+    self._processQueue();
+  },
+
   startInitialRequests: function (mls, elementName) {
     let self = this;
     let modelChoice;
-    //self.TIMEOUT = self.config.timeout;
     switch (mls) {
       case undefined:
         modelChoice = self.config.model.toUpperCase();
@@ -183,7 +221,6 @@ module.exports = {
         break;
     }
 
-    //let modelChoice = self.config.model.toUpperCase();
     let id = self[modelChoice].length - 1;
     let interval = self.config.refresh;
 
@@ -193,83 +230,19 @@ module.exports = {
       }
       id--;
     }
-    let index = 0;
-    setInterval(() => {
-      self[modelChoice].forEach((command) => {
-        if (command.Settings.toString().includes("?")) {
-          if (self.tcpSocket.isConnected) {
-            let timeout = setTimeout(() => {
-              if (self.tcpSocket.isConnected) {
-                if (mls !== undefined) {
-                  self.tcpSocket.send(
-                    "&" + elementName.trim() + "." + command.CmdStr + " ?\r"
-                  );
-                  self.log(
-                    "debug",
-                    "mls Request sent: &" +
-                      elementName +
-                      "." +
-                      command.CmdStr +
-                      " ?\r"
-                  );
-                } else {
-                  self.tcpSocket.send("*" + command.CmdStr + " ?\r");
-                  self.log(
-                    "debug",
-                    "initial Request sending: *" + command.CmdStr + " ?\r"
-                  );
-                }
-              } else {
-                self.log("error", "tcpSocket not connected :(");
-              }
-            }, parseInt(self.config.timeout) * index);
-            index++;
-            self.TIMEOUTS.push(timeout);
-          } else {
-            self.log("error", "tcpSocket not connected :(");
-          }
-        } else {
-          return;
-        }
-      });
-    }, interval);
-    self[modelChoice].forEach((command) => {
-      if (command.Settings.toString().includes("?")) {
-        if (self.tcpSocket.isConnected) {
-          let timeout = setTimeout(() => {
-            if (self.tcpSocket.isConnected) {
-              if (mls !== undefined) {
-                self.tcpSocket.send(
-                  "&" + elementName.trim() + "." + command.CmdStr + " ?\r"
-                );
-                self.log(
-                  "debug",
-                  "mls Request sent: &" +
-                    elementName +
-                    "." +
-                    command.CmdStr +
-                    " ?\r"
-                );
-              } else {
-                self.tcpSocket.send("*" + command.CmdStr + " ?\r");
-                self.log(
-                  "debug",
-                  "initial Request sending: *" + command.CmdStr + " ?\r"
-                );
-              }
-            } else {
-              self.log("error", "tcpSocket not connected :(");
-            }
-          }, parseInt(self.config.timeout) * index);
-          index++;
-          self.TIMEOUTS.push(timeout);
-        } else {
-          self.log("error", "tcpSocket not connected :(");
-        }
-      } else {
-        return;
+
+    if (!self._cmdQueue) self.initCommandQueue();
+
+    // Initial poll on connect
+    self._enqueuePollCommands(mls, elementName, modelChoice);
+
+    // Periodic refresh
+    let pollInterval = setInterval(() => {
+      if (self.tcpSocket && self.tcpSocket.isConnected) {
+        self._enqueuePollCommands(mls, elementName, modelChoice);
       }
-    });
+    }, parseInt(interval));
+    self.TIMEOUTS.push(pollInterval);
   },
 
   processFeedback: function (incomingData) {
