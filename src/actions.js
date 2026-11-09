@@ -1,4 +1,7 @@
 const { reduceModel, createList } = require("./utils");
+const legacyScalar = (value) =>
+	typeof value === "number" || typeof value === "boolean" ? String(value) : value;
+
 module.exports = {
   initActions: function (mls, element_name) {
     let self = this;
@@ -48,9 +51,9 @@ module.exports = {
                 },
               ],
               callback: async (action) => {
-                let value = await self.parseVariablesInString(
+                let value = legacyScalar(await self.parseVariablesInString(
                   action.options["id_" + element_name + command.Name]
-                );
+                ));
                 let arg = command.CmdStr;
                 if (value != "") {
                   if (
@@ -128,15 +131,15 @@ module.exports = {
                 },
               ],
               callback: async (action) => {
-                let choice = await self.parseVariablesInString(
+                let choice = legacyScalar(await self.parseVariablesInString(
                   action.options[basename]
-                );
-                let value = await self.parseVariablesInString(
+                ));
+                let value = legacyScalar(await self.parseVariablesInString(
                   action.options[basename + " value"]
-                );
-                let commandChoice = await self.parseVariablesInString(
+                ));
+                let commandChoice = legacyScalar(await self.parseVariablesInString(
                   action.options[basename + " command"]
-                );
+                ));
                 if (value != "" && commandChoice != "") {
                   if (choice === "false") {
                     if (
