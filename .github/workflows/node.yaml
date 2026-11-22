@@ -22,14 +22,14 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Use Node.js 18.x
+      - name: Use Node.js 26.x
         uses: actions/setup-node@v4
         with:
-          node-version: 18.x
+          node-version: 26.x
           cache: 'yarn'
 
       - name: Prepare Environment
-        run: corepack enable || true
+        run: npm install --global corepack@latest && corepack enable || true
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
@@ -62,10 +62,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Use Node.js 18.x
+      - name: Use Node.js 26.x
         uses: actions/setup-node@v4
         with:
-          node-version: 18.x
+          node-version: 26.x
           cache: 'yarn'
 
       - name: Install dependencies
